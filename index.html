@@ -1,7 +1,26 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>Battleships</title>
+<style>
+</style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>Yo.</p>
+
+<canvas id='canvas' width='950px' height='550px'></canvas>
+
+<script>
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+ctx.font = "30px Ariel";
+
+
+ctx.beginPath();
+ctx.arc((12+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+</script>
+
 </body>
 </html>
