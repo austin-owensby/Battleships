@@ -107,6 +107,21 @@ var ctx = canvas.getContext("2d");
 ctx.font = "30px Ariel";
 ctx.fillStyle = "#000000";
 
+function color_change(id){//Change the color of the guess button on click
+
+  var background = document.getElementById(id).style.backgroundColor;
+
+  if(background == "rgb(76, 175, 80)")
+  {
+  document.getElementById(id).style.backgroundColor = "rgb(62,142,65)";
+  }
+  if(background == "rgb(62, 142, 65)")
+  {
+    document.getElementById(id).style.backgroundColor = "rgb(76,175,80)";
+  }
+
+}
+
 //Variables for detected ships
 var battleship_detected = false; var bx = -1; var by = -1;
 var cruiser1_detected = false; var c1x = -1; var c1y = -1;
@@ -124,21 +139,25 @@ var problem = new Array(10);
 var answer = new Array(10);
 var work = new Array(10);
 var guess = new Array(10);
-
+var row_tot = new Array(10);
+var col_tot = new Array(10);
+var hints = new Array(6);
 for(var i = 0; i < 10; ++i){
 problem[i] = new Array(10);
 answer[i] = new Array(10);
 work[i] = new Array(10);
 guess[i] = new Array(10);
+row_tot[i] = 0;
+col_tot[i] = 0;
 	for(var j = 0; j < 10; ++j){
 		problem[i][j] = -1;
-		answer[i][j] = -1;
+		answer[i][j] = 0;
 		work[i][j] = -1;
 		guess[i][j] = -1;
 	}
 }
 
-function drawBoard(){
+function draw_board(){ //Draws the grid and the ships on the side
 ctx.rect(10,10,500.5,500.5);
 ctx.fill();
 	for (var i = 0; i < 10; i++) { //Draw grid
@@ -159,7 +178,7 @@ ctx.globalAlpha = 1;
 
 for(var i = 0; i < 10; ++i){ //Detect complete ships
 	for(var j = 0; j < 10; ++j){
-		if(work[i][j] === 6 || (work[i][j] === 7 && board[i][j] === 6)){ //Submarine detection
+		if(work[i][j] === 6 || problem[i][j] === 6){ //Submarine detection
 			if(submarine1_detected && !(s1x === i && s1y === j)){
 				if(submarine2_detected && !(s2x === i && s2y === j) && !(s1x === i && s1y === j)){
 					if(submarine3_detected && !(s3x === i && s3y === j) && !(s2x === i && s2y === j) && !(s1x === i && s1y === j)){
@@ -185,8 +204,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 				s1y = j;
 			}
 		}
-		if(work[i][j] === 4 || (work[i][j] === 7 && board[i][j] === 4)){
-			if(work[i][j+1] === 2 || (work[i][j+1] === 7 && board[i][j+1] === 2)){//Destroyer detection
+		if(work[i][j] === 4 || problem[i][j] === 4){
+			if(work[i][j+1] === 2 || problem[i][j+1] === 2){//Destroyer detection
 				if(destroyer1_detected && !(d1x === i && d1y === j)){
 					if(destroyer2_detected && !(d2x === i && d2y === j) && !(d1x === i && d1y === j)){
 						if(!destroyer3_detected){
@@ -205,8 +224,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 					d1y = j;
 				}
 			}
-			if(work[i][j+1] === 5 || (work[i][j+1] === 7 && board[i][j+1] === 5)){
-				if(work[i][j+2] === 2 || (work[i][j+2] === 7 && board[i][j+2] === 2)){ //Cruiser detection
+			if(work[i][j+1] === 5 || problem[i][j+1] === 5){
+				if(work[i][j+2] === 2 || problem[i][j+2] === 2){ //Cruiser detection
 					if(cruiser1_detected && !(c1x === i && c1y === j)){
 						if(!cruiser2_detected){
 							cruiser2_detected = true;
@@ -218,8 +237,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 						c1y = j;
 					}
 				}
-				if(work[i][j+2] === 5 || (work[i][j+2] === 7 && board[i][j+2] === 5) ){ //Battleship detection
-					if(work[i][j+3] === 2 || (work[i][j+3] === 7 && board[i][j+3] === 2) ){
+				if(work[i][j+2] === 5 || problem[i][j+2] === 5){ //Battleship detection
+					if(work[i][j+3] === 2 || problem[i][j+3] === 2){
 						if(!battleship_detected){
 							battleship_detected = true;
 						}
@@ -227,8 +246,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 				}
 			}
 		}
-		if(work[i][j] === 1 || (work[i][j] === 7 && board[i][j] === 1)){
-			if(work[i+1][j] === 3 || (work[i+1][j] === 7 && board[i+1][j] === 3)){ //Destroyer detection
+		if(work[i][j] === 1 || problem[i][j] === 1){
+			if(work[i+1][j] === 3 || problem[i+1][j] === 3){ //Destroyer detection
 				if(destroyer1_detected && !(d1x === i && d1y === j)){
 					if(destroyer2_detected && !(d2x === i && d2y === j) && !(d1x === i && d1y === j)){
 						if(!destroyer3_detected){
@@ -247,8 +266,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 					d1y = j;
 				}
 			}
-			if(work[i+1][j] === 5 || (work[i+1][j] === 7 && board[i+1][j] === 5)){
-				if(work[i+2][j] === 3 || (work[i+2][j] === 7 && board[i+2][j] === 3)){  //Cruiser detection
+			if(work[i+1][j] === 5 || problem[i+1][j] === 5){
+				if(work[i+2][j] === 3 || problem[i+2][j] === 3){  //Cruiser detection
 					if(cruiser1_detected && !(cx === i && cy === j)){
 						if(!cruiser2_detected){
 							cruiser2_detected = true;
@@ -262,8 +281,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 						cy = j;
 					}
 				}
-				if(work[i+2][j] === 5 || (work[i+2][j] === 7 && board[i+2][j] === 5) ){ //Battleship detection
-					if(work[i+3][j] === 3 || (work[i+3][j] === 7 && board[i+3][j] === 5) ){
+				if(work[i+2][j] === 5 || problem[i+2][j] === 5){ //Battleship detection
+					if(work[i+3][j] === 3 || problem[i+3][j] === 5){
 						if(!battleship_detected){
 							battleship_detected = true;
 							bx = i;
@@ -423,18 +442,300 @@ ctx.fill();
 ctx.fillStyle="#000000";	
 }
 
-drawBoard();
+function check(row,col,dir,size){ //When creating a board checks surrounding spaces of ship
+	for(var i = 0; i < 3; i++){
+		for(var j = 0; j < 3; j++){
+			if(((row - 1 + i) >= 0) && ((col - 1 + j) >= 0) && ((row - 1 + i) <= 9) & ((col - 1 + j) <= 9)) { //check if current cell is out of bounds
+				if(answer[row - 1 + i][col - 1 + j] > 0) { //check cell for ship
+					return 0;
+				}
+			}
+		}
+	}
+	//Move to next cell
+	if (dir === 0) {
+		row = row - size + 1;
+	}
+	else if(dir === 1) {
+		col = col + size - 1;
+	}
+	else if(dir === 2) {
+		row = row + size - 1;
+	}
+	else if(dir === 3) {
+		col = col - size + 1;
+	}
+	//Check next cell
+	for(var i = 0; i < 3; i++){
+		for(var j = 0; j < 3; j++){
+			if(((row - 1 + i) >= 0) && ((col - 1 + j) >= 0) && ((row - 1 + i) <= 9) & ((col - 1 + j) <= 9)) { //check if current cell is out of bounds
+				if(answer[row - 1 + i][col - 1 + j] > 0) { //check cell for ship
+					return 0;
+				}
+			}
+		}
+	}
+	return 1;
+}
+
+function create(){ //Create random legal board
+	var row = Math.floor(Math.random()*10);
+	var col = Math.floor(Math.random()*10);
+	var dir = Math.floor(Math.random()*4);
+	
+	//Create Battleship
+	var repeat = true;
+	while(repeat){
+		dir = Math.floor(Math.random()*4);
+		if((dir === 0) && (row > 2)){//up
+			answer[row][col] = 3;
+			answer[row - 1][col] = 5;
+			answer[row - 2][col] = 5;
+			answer[row - 3][col] = 1;
+			repeat = false;
+		}
+		else if((dir === 1) && (col < 7)){//right
+			answer[row][col] = 4;
+			answer[row][col + 1] = 5;
+			answer[row][col + 2] = 5;
+			answer[row][col + 3] = 2;
+			repeat = false;
+		}
+		else if((dir === 2) && (row < 7)){//down
+			answer[row][col] = 1;
+			answer[row + 1][col] = 5;
+			answer[row + 2][col] = 5;
+			answer[row + 3][col] = 3;
+			repeat = false;
+		}
+		else if((dir === 3) && (col > 2)){//left
+			answer[row][col] = 2;
+			answer[row][col - 1] = 5;
+			answer[row][col - 2] = 5;
+			answer[row][col - 3] = 4;
+			repeat = false;
+		}
+	}
+	
+	//Create Cruisers
+	for(var ship=0; ship < 2; ship++){
+		repeat = true;
+		while(repeat){
+			row = Math.floor(Math.random()*10);
+			col = Math.floor(Math.random()*10);
+			dir = Math.floor(Math.random()*4);
+			if((dir === 0) && (row > 1) && check(row,col,dir,3)){//up
+				answer[row][col] = 3;
+				answer[row - 1][col] = 5;
+				answer[row - 2][col] = 1;
+				repeat = false;
+			}
+			else if((dir === 1) && (col < 8) && check(row,col,dir,3)){//right
+				answer[row][col] = 4;
+				answer[row][col + 1] = 5;
+				answer[row][col + 2] = 2;
+				repeat = false;
+			}
+			else if((dir === 2) && (row < 8) && check(row,col,dir,3)){//down
+				answer[row][col] = 1;
+				answer[row + 1][col] = 5;
+				answer[row + 2][col] = 3;
+				repeat = false;
+			}
+			else if((dir === 3) && (col > 1) && check(row,col,dir,3)){//left
+				answer[row][col] = 2;
+				answer[row][col - 1] = 5;
+				answer[row][col - 2] = 4;
+				repeat = false;
+			}
+		}
+	}
+	
+	//Create Destroyers
+	for(var ship=0; ship < 3; ship++){
+		repeat = true;
+		while(repeat){
+			row = Math.floor(Math.random()*10);
+			col = Math.floor(Math.random()*10);
+			dir = Math.floor(Math.random()*4);
+			if((dir === 0) && (row > 1) && check(row,col,dir,2)){//up
+				answer[row][col] = 3;
+				answer[row - 1][col] = 1;
+				repeat = false;
+			}
+			else if((dir === 1) && (col < 8) && check(row,col,dir,2)){//right
+				answer[row][col] = 4;
+				answer[row][col + 1] = 2;
+				repeat = false;
+			}
+			else if((dir === 2) && (row < 8) && check(row,col,dir,2)){//down
+				answer[row][col] = 1;
+				answer[row + 1][col] = 3;
+				repeat = false;
+			}
+			else if((dir === 3) && (col > 1) && check(row,col,dir,2)){//left
+				answer[row][col] = 2;
+				answer[row][col - 1] = 4;
+				repeat = false;
+			}
+		}
+	}
+	
+	//Create Submarines
+	for(var ship = 0; ship < 4; ship++){
+		repeat = true;
+		while(repeat){
+			row = Math.floor(Math.random()*10);
+			col = Math.floor(Math.random()*10);
+			if(check(row,col,1,1)){
+				answer[row][col] = 6;
+				repeat = false;
+			}
+		}
+	}
+}
+
+function generate_hints(){ //Generates 3 random hints of ships
+var repeat = true;
+	while(repeat){
+		hints[0] = Math.floor(Math.random()*10);
+		hints[1] = Math.floor(Math.random()*10);
+		if(answer[hints[0]][hints[1]] > 0){
+			repeat = false;
+		}
+	}
+	repeat = true;
+	while(repeat){
+		hints[2] = Math.floor(Math.random()*10);
+		hints[3] = Math.floor(Math.random()*10);
+		if(answer[hints[2]][hints[3]] > 0 && !((hints[0] === hints[2]) && (hints[1] === hints[3])) ){
+			repeat = false;
+		}
+	}
+	repeat = true;
+	while(repeat){
+		hints[4] = Math.floor(Math.random()*10);
+		hints[5] = Math.floor(Math.random()*10);
+		if(answer[hints[4]][hints[5]] > 0 && !((hints[0] === hints[4]) && (hints[1] === hints[5])) && !((hints[4] === hints[2]) && (hints[5] === hints[3])) ){
+			repeat = false;
+		}
+	}
+}
+
+function decode_display(data,row,col){ //Displays the board based on the ship array
+switch(data){
+		case 0: //water
+			ctx.fillText("~~~",50*(row+1) - 40,50*(col+1) - 20);
+			ctx.fillText("~~~",50*(row+1) - 40,50*(col+1) - 5);
+			ctx.fillText("~~~",50*(row+1) - 40,50*(col+1) + 10);
+		break;
+		case 1: //left end
+			ctx.fillRect(50*(row+1)-15,(col+1)*50-35,20,40);
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,20,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+		case 2: //down end
+			ctx.fillRect(50*(row+1)-35,(col+1)*50-35,40,20);
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,20,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+		case 3: //right end
+			ctx.fillRect(50*(row+1)-35,(col+1)*50-35,20,40);
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,20,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+		case 4://up end
+			ctx.fillRect(50*(row+1)-35,(col+1)*50-15,40,20);
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,20,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+		case 5://center
+			ctx.fillRect(50*(row+1)-35,(col+1)*50-35,40,40);
+		break;
+		case 6://submarine
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,20,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+		case 7://hint
+			decode_display(board[row][col],row,col); //case for hints
+		break;
+		case 8://unknown ship
+			ctx.beginPath();
+			ctx.arc((row+1)*50 - 15,(col+1)*50 - 15,10,0,2*Math.PI,false);
+			ctx.fill();
+		break;
+	}
+}
+
+function display_problem(){//Displays the problem
+	ctx.clearRect(10,10,505,505);
+	draw_board();
+	for (var i = 0; i < 10; i++){
+		for(var j = 0; j < 10; j++){
+			if(answer[i][j] > 0){
+				row_tot[j] = ++row_tot[j];
+			}
+			if(answer[j][i] > 0){
+				col_tot[j] = ++col_tot[j];
+			}
+			if( (i === hints[0])&&(j === hints[1]) || (i === hints[2])&&(j === hints[3]) || (i === hints[4])&&(j === hints[5]) ){
+				problem[i][j] = answer[i][j];
+				decode_display(problem[i][j],i,j);
+				work[i][j] = 7;
+			}
+			else{
+				problem[i][j] = -1;
+				work[i][j] = -1;
+			}
+		}
+	}
+	for(var i = 0; i < 10; i++){//display totals
+		ctx.fillText(row_tot[i],525,50*i+50);
+		ctx.fillText(col_tot[i],50*i + 25,540);
+	}
+}
+
+//Random Problem(Initial run of program)
+create();
+generate_hints();
+display_problem();
+
+function display_answer(){
+ctx.clearRect(10,10,505,505);
+draw_board();
+	for(var i = 0; i < 10; i++){ //Set totals to 0
+	row_tot[i] = 0;
+	col_tot[i] = 0;
+	}
+	for (var i = 0; i < 10; i++){
+		for(var j = 0; j < 10; j++){
+		decode_display(answer[i][j],i,j);
+		if(answer[i][j] !== work[i][j] && work[i][j] !== 7){//Check for mistakes
+			ctx.globalAlpha = 0.2;
+			ctx.fillStyle="#FF0000";
+			ctx.fillRect(50*i + 11,50*j + 11,48.5,48.5);
+			ctx.globalAlpha = 1;
+			ctx.fillStyle="#000000";
+		}
+		}
+	}
+}
 
 function mode_change(mode){
 	switch(mode){
 		case 'Random':
-		
+			location.reload();
 		break;
 		case 'Easy':
 		
 		break;
 		case 'Solution':
-		
+			display_answer();
 		break;
 		case 'Solver':
 		
@@ -450,21 +751,6 @@ function mode_change(mode){
 		break;
 	}
 	console.log('Mode: ' + mode);
-}
-
-function color_change(id){//Change the color of the guess button on click
-
-  var background = document.getElementById(id).style.backgroundColor;
-
-  if(background == "rgb(76, 175, 80)")
-  {
-  document.getElementById(id).style.backgroundColor = "rgb(62,142,65)";
-  }
-  if(background == "rgb(62, 142, 65)")
-  {
-    document.getElementById(id).style.backgroundColor = "rgb(76,175,80)";
-  }
-
 }
 
 </script>
