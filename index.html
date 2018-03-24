@@ -732,17 +732,19 @@ draw_board();
 
 function mode_change(mode){
 	switch(mode){
-		case 'Random':
+		case 'Random': //Reloads the page since the program initially runs a random problem
 			location.reload();
 		break;
-		case 'Easy':
+		
+		case 'Easy': //Generates an easy to solve problem
 		solution_shown = false;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
 		}
 		break;
-		case 'Solution':
+		
+		case 'Solution': //Shows the solution and mistakes
 		if(!solution_shown){
 			display_answer();
 			solution_shown = true;
@@ -752,7 +754,8 @@ function mode_change(mode){
 			color_change('button3');
 		}
 		break;
-		case 'Solver':
+		
+		case 'Solver': //Solves the problem as far as possible using the programmed logic
 		if(!solution_shown){
 		
 		}
@@ -761,14 +764,16 @@ function mode_change(mode){
 			color_change('button3');
 		}
 		break;
-		case 'Enter':
+		
+		case 'Enter': //Allows user to enter their own problems
 		solution_shown = false;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
 		}
 		break;
-		case 'Restart':
+		
+		case 'Restart': //Restarts current problem
 		solution_shown = false;
 		display_problem();
 		if(guessing){
@@ -776,7 +781,8 @@ function mode_change(mode){
 			color_change('button3');
 		}
 		break;
-		case 'Guess':
+		
+		case 'Guess': //Allows user guessing mode
 		if(!solution_shown){
 			color_change('button3');
 			guessing = true;
