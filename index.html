@@ -3,22 +3,144 @@
 <head>
 <title>Battleships</title>
 <style>
+*, *:before, *:after {
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+}
+
+.btn-group .button {
+    background: rgb(76, 175, 80); /* Green */
+    border: 1px solid green;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    width: 200px;
+	height: 40px;
+    display: block;
+}
+
+.btn-group .button:not(:last-child) {
+    border-bottom: none; /* Prevent double borders */
+}
+
+.btn-group .button:hover {
+    background: rgb(62, 142, 65);
+}
+
+.canvas-container{
+  position: relative;
+  width: 950px;
+  height: 550px;
+}
+#canvas {
+  position: absolute;
+  background-color:lightgrey
+}
+#button0 {
+  position:absolute;
+  left:65%;
+  top:40%
+}
+#button1 {
+  position:absolute;
+  left:65%;
+  top:47%
+}
+#button2 {
+  position:absolute;
+  left:65%;
+  top:54%
+}
+#button3 {
+  position:absolute;
+  left:65%;
+  top:61%
+}
+#button4 {
+  position:absolute;
+  left:65%;
+  top:68%
+}
+#button5 {
+  position:absolute;
+  left:65%;
+  top:75%
+}
+#button6 {
+  position:absolute;
+  left:65%;
+  top:82%
+}
+
 </style>
 </head>
 <body>
 
-<canvas id='canvas' width='950px' height='550px'></canvas>
+<div class="canvas-container">
+ <canvas id='canvas' width='950px' height='550px'></canvas>
+ <div class = "btn-group">
+<button class = "button" id="button0" onclick="mode_change('Random');">Random Problem</button>
+<button class = "button" id="button1" onclick="mode_change('Easy');">Easy Problem</button>
+<button class = "button" id="button2" onclick="mode_change('Solution');">Solution</button>
+<button class = "button" id='button3' onclick="mode_change('Guess'); color_change('button3');" style="background:rgb(76, 175, 80);">Guess Mode</button>
+<button class = "button" id="button4" onclick="mode_change('Solver');">Puzzle Solver</button>
+<button class = "button" id="button5" onclick="mode_change('Enter');">Enter Problem</button>
+<button class = "button" id="button6" onclick="mode_change('Restart');">Restart Problem</button>
+ </div>
+</div>
 
 <script>
-
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 ctx.font = "30px Ariel";
+ctx.fillStyle = "#000000";
 
+function mode_change(mode){
+	switch(mode){
+		case 'Random':
+		
+		break;
+		case 'Easy':
+		
+		break;
+		case 'Solution':
+		
+		break;
+		case 'Solver':
+		
+		break;
+		case 'Enter':
+		
+		break;
+		case 'Reset':
+		
+		break;
+		case 'Guess':
+		
+		break;
+	}
+	console.log('Mode: ' + mode);
+}
 
-ctx.beginPath();
-ctx.arc((12+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
-ctx.fill();
+function color_change(id){//Change the color of the guess button on click
+
+  var background = document.getElementById(id).style.backgroundColor;
+
+  if(background == "rgb(76, 175, 80)")
+  {
+  document.getElementById(id).style.backgroundColor = "rgb(62,142,65)";
+  }
+  if(background == "rgb(62, 142, 65)")
+  {
+    document.getElementById(id).style.backgroundColor = "rgb(76,175,80)";
+  }
+
+}
 
 </script>
 
