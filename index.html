@@ -100,6 +100,324 @@ var ctx = canvas.getContext("2d");
 ctx.font = "30px Ariel";
 ctx.fillStyle = "#000000";
 
+//Variables for detected ships
+var battleship_detected = false; var bx = -1; var by = -1;
+var cruiser1_detected = false; var c1x = -1; var c1y = -1;
+var cruiser2_detected = false; var c2x = -1; var c2y = -1;
+var destroyer1_detected = false; var d1x = -1; var d1y = -1;
+var destroyer2_detected = false; var d2x = -1; var d2y = -1;
+var destroyer3_detected = false; var d3x = -1; var d3y = -1;
+var submarine1_detected = false; var s1x = -1; var s1y = -1;
+var submarine2_detected = false; var s2x = -1; var s2y = -1;
+var submarine3_detected = false; var s3x = -1; var s3y = -1;
+var submarine4_detected = false; var s4x = -1; var s4y = -1;
+
+//Initialize boards
+var problem = new Array(10);
+var answer = new Array(10);
+var work = new Array(10);
+var guess = new Array(10);
+
+for(var i = 0; i < 10; ++i){
+problem[i] = new Array(10);
+answer[i] = new Array(10);
+work[i] = new Array(10);
+guess[i] = new Array(10);
+	for(var j = 0; j < 10; ++j){
+		problem[i][j] = -1;
+		answer[i][j] = -1;
+		work[i][j] = -1;
+		guess[i][j] = -1;
+	}
+}
+
+function drawBoard(){
+ctx.rect(10,10,500.5,500.5);
+ctx.fill();
+	for (var i = 0; i < 10; i++) { //Draw grid
+		for(var j = 0; j < 10; j++){
+			ctx.beginPath();
+			ctx.fillStyle="#FFFFFF";
+			ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
+			ctx.fill();
+			ctx.closePath();
+			ctx.fillStyle="#000000";
+		}
+	}
+	
+ctx.globalAlpha = 0.2; //Draw side grey bar
+ctx.fillStyle="#000000";
+ctx.fillRect(600,0,350,550);
+ctx.globalAlpha = 1;
+
+for(var i = 0; i < 10; ++i){ //Detect complete ships
+	for(var j = 0; j < 10; ++j){
+		if(work[i][j] === 6 || (work[i][j] === 7 && board[i][j] === 6)){ //Submarine detection
+			if(submarine1_detected && !(s1x === i && s1y === j)){
+				if(submarine2_detected && !(s2x === i && s2y === j) && !(s1x === i && s1y === j)){
+					if(submarine3_detected && !(s3x === i && s3y === j) && !(s2x === i && s2y === j) && !(s1x === i && s1y === j)){
+						if(!submarine4_detected){
+							submarine4_detected = true;
+						}
+					}
+					else if(!submarine3_detected){
+						submarine3_detected = true;
+						s3x = i;
+						s3y = j;
+					}
+				}
+				else if(!submarine2_detected){
+					submarine2_detected = true;
+					s2x = i;
+					s2y = j;
+				}
+			}
+			else if(!submarine1_detected){
+				submarine1_detected = true;
+				s1x = i;
+				s1y = j;
+			}
+		}
+		if(work[i][j] === 4 || (work[i][j] === 7 && board[i][j] === 4)){
+			if(work[i][j+1] === 2 || (work[i][j+1] === 7 && board[i][j+1] === 2)){//Destroyer detection
+				if(destroyer1_detected && !(d1x === i && d1y === j)){
+					if(destroyer2_detected && !(d2x === i && d2y === j) && !(d1x === i && d1y === j)){
+						if(!destroyer3_detected){
+							destroyer3_detected = true;
+						}
+					}
+					else if(!destroyer2_detected){
+						destroyer2_detected = true;
+						d2x = i;
+						d2y = j;
+					}
+				}
+				else if(!destroyer1_detected){
+					destroyer1_detected = true;
+					d1x = i;
+					d1y = j;
+				}
+			}
+			if(work[i][j+1] === 5 || (work[i][j+1] === 7 && board[i][j+1] === 5)){
+				if(work[i][j+2] === 2 || (work[i][j+2] === 7 && board[i][j+2] === 2)){ //Cruiser detection
+					if(cruiser1_detected && !(c1x === i && c1y === j)){
+						if(!cruiser2_detected){
+							cruiser2_detected = true;
+						}
+					}
+					else if(!cruiser1_detected){
+						cruiser1_detected = true;
+						c1x = i;
+						c1y = j;
+					}
+				}
+				if(work[i][j+2] === 5 || (work[i][j+2] === 7 && board[i][j+2] === 5) ){ //Battleship detection
+					if(work[i][j+3] === 2 || (work[i][j+3] === 7 && board[i][j+3] === 2) ){
+						if(!battleship_detected){
+							battleship_detected = true;
+						}
+					}
+				}
+			}
+		}
+		if(work[i][j] === 1 || (work[i][j] === 7 && board[i][j] === 1)){
+			if(work[i+1][j] === 3 || (work[i+1][j] === 7 && board[i+1][j] === 3)){ //Destroyer detection
+				if(destroyer1_detected && !(d1x === i && d1y === j)){
+					if(destroyer2_detected && !(d2x === i && d2y === j) && !(d1x === i && d1y === j)){
+						if(!destroyer3_detected){
+							destroyer3_detected = true;
+						}
+					}
+					else if(!destroyer2_detected){
+						destroyer2_detected = true;
+						d2x = i;
+						d2y = j;
+					}
+				}
+				else if(!destroyer1_detected){
+					destroyer1_detected = true;
+					d1x = i;
+					d1y = j;
+				}
+			}
+			if(work[i+1][j] === 5 || (work[i+1][j] === 7 && board[i+1][j] === 5)){
+				if(work[i+2][j] === 3 || (work[i+2][j] === 7 && board[i+2][j] === 3)){  //Cruiser detection
+					if(cruiser1_detected && !(cx === i && cy === j)){
+						if(!cruiser2_detected){
+							cruiser2_detected = true;
+							c2x = i;
+							c2y = j;
+						}
+					}
+					else if(!cruiser1_detected){
+						cruiser1_detected = true;
+						cx = i;
+						cy = j;
+					}
+				}
+				if(work[i+2][j] === 5 || (work[i+2][j] === 7 && board[i+2][j] === 5) ){ //Battleship detection
+					if(work[i+3][j] === 3 || (work[i+3][j] === 7 && board[i+3][j] === 5) ){
+						if(!battleship_detected){
+							battleship_detected = true;
+							bx = i;
+							by = j;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+//Shade ships grey if detected
+//Sub1
+if(submarine1_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.beginPath();
+ctx.arc((12+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+if(submarine2_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+//Sub2
+ctx.beginPath();
+ctx.arc((13+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+if(submarine3_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+//Sub3
+ctx.beginPath();
+ctx.arc((14+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+if(submarine4_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+//Sub4
+ctx.beginPath();
+ctx.arc((15+1)*50 - 15,(1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Destroyer1
+if(destroyer1_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(12+1)-15,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((12+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+ctx.fillRect(50*(13+1)-35,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((13+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Destroyer2
+if(destroyer2_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(14+1)-15,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((14+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+ctx.fillRect(50*(15+1)-35,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((15+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Destroyer3
+if(destroyer3_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(16+1)-15,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((16+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+ctx.fillRect(50*(17+1)-35,(1+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((17+1)*50 - 15,(1+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Cruiser1
+if(cruiser1_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(12+1)-15,(2+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((12+1)*50 - 15,(2+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+ctx.fillRect(50*(13+1)-35,(2+1)*50-35,40,40);
+ctx.fillRect(50*(14+1)-35,(2+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((14+1)*50 - 15,(2+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Cruiser 2
+if(cruiser2_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(15+1)-15,(2+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((15+1)*50 - 15,(2+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();	
+ctx.fillRect(50*(16+1)-35,(2+1)*50-35,40,40);
+ctx.fillRect(50*(17+1)-35,(2+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((17+1)*50 - 15,(2+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+//Battleship
+if(battleship_detected){
+ctx.fillStyle="#555555";
+}
+else{
+ctx.fillStyle="#000000";
+}
+ctx.fillRect(50*(12+1)-15,(3+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((12+1)*50 - 15,(3+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();	
+ctx.fillRect(50*(13+1)-35,(3+1)*50-35,40,40);
+ctx.fillRect(50*(14+1)-35,(3+1)*50-35,40,40);
+ctx.fillRect(50*(15+1)-35,(3+1)*50-35,20,40);
+ctx.beginPath();
+ctx.arc((15+1)*50 - 15,(3+1)*50 - 15,20,0,2*Math.PI,false);
+ctx.fill();
+
+ctx.fillStyle="#000000";	
+}
+
+drawBoard();
+
 function mode_change(mode){
 	switch(mode){
 		case 'Random':
