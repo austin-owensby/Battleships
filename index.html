@@ -157,7 +157,16 @@ col_tot[i] = 0;
 	}
 }
 
+//Initialize other variables
+var solution_shown = false;
+
+ctx.globalAlpha = 0.2; //Draw side gray bar
+ctx.fillStyle="#000000";
+ctx.fillRect(600,0,350,550);
+ctx.globalAlpha = 1;
+
 function draw_board(){ //Draws the grid and the ships on the side
+ctx.clearRect(10,10,505,505);
 ctx.rect(10,10,500.5,500.5);
 ctx.fill();
 	for (var i = 0; i < 10; i++) { //Draw grid
@@ -170,11 +179,6 @@ ctx.fill();
 			ctx.fillStyle="#000000";
 		}
 	}
-	
-ctx.globalAlpha = 0.2; //Draw side grey bar
-ctx.fillStyle="#000000";
-ctx.fillRect(600,0,350,550);
-ctx.globalAlpha = 1;
 
 for(var i = 0; i < 10; ++i){ //Detect complete ships
 	for(var j = 0; j < 10; ++j){
@@ -673,7 +677,6 @@ switch(data){
 }
 
 function display_problem(){//Displays the problem
-	ctx.clearRect(10,10,505,505);
 	draw_board();
 	for (var i = 0; i < 10; i++){
 		for(var j = 0; j < 10; j++){
@@ -706,7 +709,6 @@ generate_hints();
 display_problem();
 
 function display_answer(){
-ctx.clearRect(10,10,505,505);
 draw_board();
 	for(var i = 0; i < 10; i++){ //Set totals to 0
 	row_tot[i] = 0;
@@ -735,7 +737,10 @@ function mode_change(mode){
 		
 		break;
 		case 'Solution':
+		if(!solution_shown){
 			display_answer();
+			solution_shown = true;
+		}	
 		break;
 		case 'Solver':
 		
@@ -750,7 +755,6 @@ function mode_change(mode){
 		
 		break;
 	}
-	console.log('Mode: ' + mode);
 }
 
 </script>
