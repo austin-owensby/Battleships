@@ -94,7 +94,7 @@
 <button class = "button" id="button0" onclick="mode_change('Random');">Random Problem</button>
 <button class = "button" id="button1" onclick="mode_change('Easy');">Easy Problem</button>
 <button class = "button" id="button2" onclick="mode_change('Solution');">Solution</button>
-<button class = "button" id='button3' onclick="mode_change('Guess'); color_change('button3');" style="background:rgb(76, 175, 80);">Guess Mode</button>
+<button class = "button" id='button3' onclick="mode_change('Guess');" style="background:rgb(76, 175, 80);">Guess Mode</button>
 <button class = "button" id="button4" onclick="mode_change('Solver');">Puzzle Solver</button>
 <button class = "button" id="button5" onclick="mode_change('Enter');">Enter Problem</button>
 <button class = "button" id="button6" onclick="mode_change('Restart');">Restart Problem</button>
@@ -159,6 +159,7 @@ col_tot[i] = 0;
 
 //Initialize other variables
 var solution_shown = false;
+var guessing = false;
 
 ctx.globalAlpha = 0.2; //Draw side gray bar
 ctx.fillStyle="#000000";
@@ -166,9 +167,13 @@ ctx.fillRect(600,0,350,550);
 ctx.globalAlpha = 1;
 
 function draw_board(){ //Draws the grid and the ships on the side
-ctx.clearRect(10,10,505,505);
+ctx.clearRect(10,10,550,550);
 ctx.rect(10,10,500.5,500.5);
 ctx.fill();
+for(var i = 0; i < 10; i++){//Reset totals so that they don't re-add together every time its drawn
+	row_tot[i] = 0;
+	col_tot[i] = 0;
+}
 	for (var i = 0; i < 10; i++) { //Draw grid
 		for(var j = 0; j < 10; j++){
 			ctx.beginPath();
@@ -177,7 +182,18 @@ ctx.fill();
 			ctx.fill();
 			ctx.closePath();
 			ctx.fillStyle="#000000";
+			if(answer[i][j] > 0){ //Calculate row and column totals
+				row_tot[j] = ++row_tot[j];
+			}
+			if(answer[j][i] > 0){
+				col_tot[j] = ++col_tot[j];
+			}
 		}
+	}
+
+	for(var i = 0; i < 10; i++){//display totals
+		ctx.fillText(row_tot[i],525,50*i+50);
+		ctx.fillText(col_tot[i],50*i + 25,540);
 	}
 
 for(var i = 0; i < 10; ++i){ //Detect complete ships
@@ -680,12 +696,6 @@ function display_problem(){//Displays the problem
 	draw_board();
 	for (var i = 0; i < 10; i++){
 		for(var j = 0; j < 10; j++){
-			if(answer[i][j] > 0){
-				row_tot[j] = ++row_tot[j];
-			}
-			if(answer[j][i] > 0){
-				col_tot[j] = ++col_tot[j];
-			}
 			if( (i === hints[0])&&(j === hints[1]) || (i === hints[2])&&(j === hints[3]) || (i === hints[4])&&(j === hints[5]) ){
 				problem[i][j] = answer[i][j];
 				decode_display(problem[i][j],i,j);
@@ -697,10 +707,6 @@ function display_problem(){//Displays the problem
 			}
 		}
 	}
-	for(var i = 0; i < 10; i++){//display totals
-		ctx.fillText(row_tot[i],525,50*i+50);
-		ctx.fillText(col_tot[i],50*i + 25,540);
-	}
 }
 
 //Random Problem(Initial run of program)
@@ -710,10 +716,6 @@ display_problem();
 
 function display_answer(){
 draw_board();
-	for(var i = 0; i < 10; i++){ //Set totals to 0
-	row_tot[i] = 0;
-	col_tot[i] = 0;
-	}
 	for (var i = 0; i < 10; i++){
 		for(var j = 0; j < 10; j++){
 		decode_display(answer[i][j],i,j);
@@ -734,25 +736,51 @@ function mode_change(mode){
 			location.reload();
 		break;
 		case 'Easy':
-		
+		solution_shown = false;
+		if(guessing){
+			guessing = false;
+			color_change('button3');
+		}
 		break;
 		case 'Solution':
 		if(!solution_shown){
 			display_answer();
 			solution_shown = true;
-		}	
+		}
+		if(guessing){
+			guessing = false;
+			color_change('button3');
+		}
 		break;
 		case 'Solver':
+		if(!solution_shown){
 		
+		}
+		if(guessing){
+			guessing = false;
+			color_change('button3');
+		}
 		break;
 		case 'Enter':
-		
+		solution_shown = false;
+		if(guessing){
+			guessing = false;
+			color_change('button3');
+		}
 		break;
-		case 'Reset':
-		
+		case 'Restart':
+		solution_shown = false;
+		display_problem();
+		if(guessing){
+			guessing = false;
+			color_change('button3');
+		}
 		break;
 		case 'Guess':
-		
+		if(!solution_shown){
+			color_change('button3');
+			guessing = true;
+		}
 		break;
 	}
 }
