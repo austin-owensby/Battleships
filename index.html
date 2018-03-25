@@ -160,9 +160,6 @@ for(var i = 0; i < 10; ++i){
 //Initialize other variables
 var solution_shown = false;
 var guessing = false;
-var mouse_down = false;
-var dragged = false;
-var drag_value = 9;
 
 ctx.globalAlpha = 0.2; //Draw side gray bar
 ctx.fillStyle="#000000";
@@ -732,6 +729,12 @@ draw_board();
 	}
 }
 
+//Variables for interactivity
+var mouse_down = false;
+var dragging = false;
+var mouse_up = true;
+var drag_value = 9;
+
 function getMousePos(canvas, evt) { //Get Mouse grid coordinates
   var rect = canvas.getBoundingClientRect();
   return {
@@ -741,62 +744,63 @@ function getMousePos(canvas, evt) { //Get Mouse grid coordinates
 }
 
 function update_display(x,y){//Update the view of the board
-	if(dragged && work[x][y] !== 7){
-		if(drag_value === 9){
+	if(x > -1 && x < 10 && y > -1 && y < 10 && work[x][y] !== 7){
+		if(dragging){//Dragging mode
+			if(drag_value === 9){
+				if(work[x][y] === -1){
+					drag_value = 0;
+				}
+				else if(work[x][y] === 0){
+					drag_value = 8;
+				}
+				work[x][y] = drag_value;
+			}
 			if(work[x][y] === -1){
-				drag_value = 0;
+				work[x][y] = drag_value;
+			}
+		}
+		else{//Click mode
+			if(work[x][y] === -1){
 				work[x][y] = 0;
 			}
 			else if(work[x][y] === 0){
-				drag_value = 8;
 				work[x][y] = 8;
 			}
+			else{
+				work[x][y] = -1;
+			}
 		}
-		if(work[x][y] === -1){
-			work[x][y] = drag_value;
-		}
-	}
-	else if(work[x][y] !== 7){
-		if(work[x][y] === -1){
-			work[x][y] = 0;
-		}
-		else if(work[x][y] === 0){
-			work[x][y] = 8;
-		}
-		else{
-			work[x][y] = -1;
-		}
-	}
-	draw_board();
-	for(var i = 0; i < 10; ++i){
-		for(var j = 0; j < 10; ++j){
-			decode_display(work[i][j],i,j);
+		draw_board();
+		for(var i = 0; i < 10; ++i){
+			for(var j = 0; j < 10; ++j){
+				decode_display(work[i][j],i,j);
+			}
 		}
 	}
 }
 
 canvas.addEventListener('mousemove', function(evt1){ //When moved
-	var mousePos = getMousePos(canvas, evt1);
-	if(mouse_down){
-	dragged = true;
-	if(mousePos.x > -1 && mousePos.x < 10 && mousePos.y > -1 && mousePos.y < 10){
+var mousePos = getMousePos(canvas, evt1);
+if(mouse_down && !mouse_up){
+	dragging = true;
 	update_display(mousePos.x,mousePos.y);
-	}
-	}
-},false);
+}
+});
 
 document.addEventListener('mouseup', function(evt2){ //When mouse is released
-	var mousePos = getMousePos(canvas, evt2);
-	mouse_down = false;
-	drag_value = 9;
-	if(mousePos.x > -1 && mousePos.x < 10 && mousePos.y > -1 && mousePos.y < 10){
-	update_display(mousePos.x,mousePos.y);
-	}
-	dragged = false;
+var mousePos = getMousePos(canvas, evt2);
+mouse_down = false;
+mouse_up = true;
+drag_value = 9;
+if(!dragging){
+update_display(mousePos.x,mousePos.y);
+}
+dragging = false;
 });
 
 document.addEventListener('mousedown', function(){ //When mouse is pressed down
 mouse_down = true;
+mouse_up = false;
 });
 
 function mode_change(mode){
