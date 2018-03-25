@@ -143,12 +143,12 @@ var row_tot = new Array(10);
 var col_tot = new Array(10);
 var hints = new Array(6);
 for(var i = 0; i < 10; ++i){
-problem[i] = new Array(10);
-answer[i] = new Array(10);
-work[i] = new Array(10);
-guess[i] = new Array(10);
-row_tot[i] = 0;
-col_tot[i] = 0;
+	problem[i] = new Array(10);
+	answer[i] = new Array(10);
+	work[i] = new Array(10);
+	guess[i] = new Array(10);
+	row_tot[i] = 0;
+	col_tot[i] = 0;
 	for(var j = 0; j < 10; ++j){
 		problem[i][j] = -1;
 		answer[i][j] = 0;
@@ -160,6 +160,9 @@ col_tot[i] = 0;
 //Initialize other variables
 var solution_shown = false;
 var guessing = false;
+var mouse_down = false;
+var dragged = false;
+var drag_value = 9;
 
 ctx.globalAlpha = 0.2; //Draw side gray bar
 ctx.fillStyle="#000000";
@@ -682,7 +685,7 @@ switch(data){
 			ctx.fill();
 		break;
 		case 7://hint
-			decode_display(board[row][col],row,col); //case for hints
+			decode_display(problem[row][col],row,col); //case for hints
 		break;
 		case 8://unknown ship
 			ctx.beginPath();
@@ -703,7 +706,6 @@ function display_problem(){//Displays the problem
 			}
 			else{
 				problem[i][j] = -1;
-				work[i][j] = -1;
 			}
 		}
 	}
@@ -714,7 +716,7 @@ create();
 generate_hints();
 display_problem();
 
-function display_answer(){
+function display_answer(){ //display the answer of the board
 draw_board();
 	for (var i = 0; i < 10; i++){
 		for(var j = 0; j < 10; j++){
@@ -729,6 +731,73 @@ draw_board();
 		}
 	}
 }
+
+function getMousePos(canvas, evt) { //Get Mouse grid coordinates
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: Math.floor((evt.clientX - rect.left - 10)/50),
+    y: Math.floor((evt.clientY - rect.top - 10)/50)
+  };
+}
+
+function update_display(x,y){//Update the view of the board
+	if(dragged && work[x][y] !== 7){
+		if(drag_value === 9){
+			if(work[x][y] === -1){
+				drag_value = 0;
+				work[x][y] = 0;
+			}
+			else if(work[x][y] === 0){
+				drag_value = 8;
+				work[x][y] = 8;
+			}
+		}
+		if(work[x][y] === -1){
+			work[x][y] = drag_value;
+		}
+	}
+	else if(work[x][y] !== 7){
+		if(work[x][y] === -1){
+			work[x][y] = 0;
+		}
+		else if(work[x][y] === 0){
+			work[x][y] = 8;
+		}
+		else{
+			work[x][y] = -1;
+		}
+	}
+	draw_board();
+	for(var i = 0; i < 10; ++i){
+		for(var j = 0; j < 10; ++j){
+			decode_display(work[i][j],i,j);
+		}
+	}
+}
+
+canvas.addEventListener('mousemove', function(evt1){ //When moved
+	var mousePos = getMousePos(canvas, evt1);
+	if(mouse_down){
+	dragged = true;
+	if(mousePos.x > -1 && mousePos.x < 10 && mousePos.y > -1 && mousePos.y < 10){
+	update_display(mousePos.x,mousePos.y);
+	}
+	}
+},false);
+
+document.addEventListener('mouseup', function(evt2){ //When mouse is released
+	var mousePos = getMousePos(canvas, evt2);
+	mouse_down = false;
+	drag_value = 9;
+	if(mousePos.x > -1 && mousePos.x < 10 && mousePos.y > -1 && mousePos.y < 10){
+	update_display(mousePos.x,mousePos.y);
+	}
+	dragged = false;
+});
+
+document.addEventListener('mousedown', function(){ //When mouse is pressed down
+mouse_down = true;
+});
 
 function mode_change(mode){
 	switch(mode){
