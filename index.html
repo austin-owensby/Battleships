@@ -177,6 +177,7 @@ for(var i = 0; i < 10; ++i){
 var solution_shown = false;
 var guessing = false;
 var entering = false;
+var solving = false;
 
 //Draw gray side bar
 ctx.globalAlpha = 0.2;
@@ -950,7 +951,7 @@ function update_display(x,y){//Update the view of the board
 
 canvas.addEventListener('mousemove', function(evt1){ //When moved
 var mousePos = getMousePos(canvas, evt1);
-if(mouse_down && !mouse_up && !guessing && !entering){
+if(mouse_down && !mouse_up && !guessing && !entering && !solving){
 	dragging = true;
 	update_display(mousePos.x,mousePos.y);
 }
@@ -961,10 +962,10 @@ var mousePos = getMousePos(canvas, evt2);
 mouse_down = false;
 mouse_up = true;
 drag_value = 9;
-if(entering && !dragging){
+if(entering && !dragging && !solving){
 enter_problem(mousePos.x,mousePos.y);
 }
-else if(!dragging){
+else if(!dragging && !solving){
 update_display(mousePos.x,mousePos.y);
 }
 dragging = false;
@@ -974,6 +975,90 @@ document.addEventListener('mousedown', function(){ //When mouse is pressed down
 mouse_down = true;
 mouse_up = false;
 });
+
+function problem_solver(){
+	var current_row_tot = new Array(10);
+	var current_col_tot = new Array(10);
+	var empty_row_tot = new Array(10);
+	var empty_col_tot = new Array(10);
+	for(var i = 0; i < 10; ++i){
+		current_row_tot[i] = 0;
+		current_col_tot[i] = 0;
+		empty_row_tot[i] = 0;
+		empty_col_tot[i] = 0;
+	}
+	for(var i = 0; i < 10; ++i){
+		for(var j = 0; j < 10; ++j){
+			if(work[i][j] === 7){
+				work[i][j] = problem[i][j];
+			}
+			if(work[j][i] > 0){
+				++current_col_tot[j];
+			}
+			if(work[i][j] > 0){
+				++current_row_tot[j];
+			}
+			if(work[j][i] !== 0){
+				++empty_col_tot[j];
+				}
+			if(work[i][j] !== 0){
+				++empty_row_tot[j];
+			}
+		}
+	}
+	for(var i = 0; i < 10; ++i){
+		for(var j = 0; j < 10; ++j){
+			if(current_row_tot[i] === row_tot[i]){ //fill row with water if the current ship parts = row number
+				for(var j = 0; j < 10; ++j){
+					if(work[j][i] === -1){
+						work[j][i] = 0;
+					}
+				}
+			}
+			if(current_col_tot[i] === col_tot[i]){ //fill col with water if the current ship parts = col number
+				for(var j = 0; j < 10; ++j){
+					if(work[i][j] === -1){
+						work[i][j] = 0;
+					}
+				}
+			}
+			if(empty_row_tot[i] === row_tot[i]){ //fill row with ships if count is right
+				for(var j = 0; j < 10; ++j){
+					if(work[j][i] === -1){
+						work[j][i] = 8;
+					}
+				}
+			}
+			if(empty_col_tot[i] === col_tot[i]){ //fill col with ships if count is right
+				for(var j = 0; j < 10; ++j){
+					if(work[i][j] === -1){
+						work[i][j] = 8;
+					}
+				}
+			}
+		}
+	}
+	ctx.clearRect(10,10,550,550);
+	ctx.rect(10,10,500.5,500.5);
+	ctx.fill();
+	for (var i = 0; i < 10; i++) { //Draw grid
+		for(var j = 0; j < 10; j++){
+			ctx.beginPath();
+			ctx.fillStyle="#FFFFFF";
+			ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
+			ctx.fill();
+			ctx.closePath();
+			ctx.fillStyle="#000000";
+		}
+	}
+	for(var i = 0; i < 10; ++i){
+		ctx.fillText(row_tot[i],525,50*i+50);
+		ctx.fillText(col_tot[i],50*i + 25,540);
+		for(var j = 0; j < 10; ++j){
+			decode_display(work[i][j],i,j);
+		}
+	}
+}
 
 function mode_change(mode){ //Compartmentalizes different modes
 	switch(mode){
@@ -994,6 +1079,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		
 		case 'Solution': //Shows the solution and mistakes
 		if(!solution_shown && !entering){
+		solving = false;
 			display_answer();
 			solution_shown = true;
 		}
@@ -1004,9 +1090,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Solver': //Solves the problem as far as possible using the programmed logic
-		if(!solution_shown){
-		
-		}
+		solving = true;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
@@ -1014,10 +1098,14 @@ function mode_change(mode){ //Compartmentalizes different modes
 		if(entering){
 			entering = false;
 		}
+		if(!solution_shown){
+			problem_solver();
+		}
 		break;
 		
 		case 'Enter': //Allows user to enter their own problems
 		solution_shown = false;
+		solving = false;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
@@ -1044,6 +1132,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		
 		case 'Restart': //Restarts current problem
 		solution_shown = false;
+		solving = false;
 		display_problem();
 		if(guessing){
 			guessing = false;
@@ -1052,7 +1141,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Guess': //Allows user guessing mode
-		if(!solution_shown && !entering){
+		if(!solution_shown && !entering && !solving){
 			color_change('button3');
 			if(guessing){
 				guessing = false;
