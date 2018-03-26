@@ -702,6 +702,7 @@ function display_problem(){//Displays the problem
 				work[i][j] = 7;
 			}
 			else{
+				work[i][j] = -1;
 				problem[i][j] = -1;
 			}
 		}
@@ -743,6 +744,64 @@ function getMousePos(canvas, evt) { //Get Mouse grid coordinates
   };
 }
 
+function decode_work(row,col){ //Update the work screen to match expected ship piece
+	var up = 0;
+	var right = 0;
+	var down = 0;
+	var left = 0;
+	if(row !== 0){
+		up = work[row - 1][col];
+		if(up === 7){
+			up = board[row - 1][col];
+		}
+	}
+	if(row !== 9){
+		down = work[row + 1][col];
+		if(down === 7){
+			down = board[row + 1][col];
+		}
+	}
+	if(col !== 0){
+		left = work[row][col - 1];
+		if(left === 7){
+			left = board[row][col - 1];
+		}
+	}
+	if(col !== 9){
+		right = work[row][col + 1];
+		if(right === 7){
+			right = board[row][col + 1];
+		}
+	}
+	//Begin decode
+	if(work[row][col] === 7){
+	return 0;
+	}
+	if(!(up||down||left||right)){ //surrounded by water turn into a submarine
+		work[row][col] = 6;
+	}
+	else if((up === 1 || up === 5 || up === 8) && (down === 5 || down === 3 || down === 8) || (right === 2 || right === 5 || right === 8) && (left === 4 || left === 5 || left === 8)){ //if next to ships turn into ship middle
+		work[row][col] = 5;
+	}
+	//ship ends
+	else if((up === 5 || up === 1 || up === 8)&& !down){
+		work[row][col] = 3;
+	}
+	else if((down === 5 || down === 3 || down === 8)&& !up){
+		work[row][col] = 1;
+	}
+	else if((left === 5 || left === 4 || left === 8)&& !right){
+		work[row][col] = 2;
+	}
+	else if((right === 5 || right === 2 || right === 8)&& !left){
+		work[row][col] = 4;
+	}
+	else {
+		work[row][col] = 8;
+	}
+	
+}
+
 function update_display(x,y){//Update the view of the board
 	if(x > -1 && x < 10 && y > -1 && y < 10 && work[x][y] !== 7){
 		if(dragging){//Dragging mode
@@ -760,19 +819,48 @@ function update_display(x,y){//Update the view of the board
 			}
 		}
 		else{//Click mode
-			if(work[x][y] === -1){
-				work[x][y] = 0;
+			if(!guessing){
+				if(work[x][y] === -1){
+					work[x][y] = 0;
+				}
+				else if(work[x][y] === 0){
+					work[x][y] = 8;
+				}
+				else{
+					work[x][y] = -1;
+				}
 			}
-			else if(work[x][y] === 0){
-				work[x][y] = 8;
-			}
-			else{
-				work[x][y] = -1;
+			if(guessing){
+				if(guess[x][y] === -1){
+					guess[x][y] = 0;
+				}
+				else if(guess[x][y] === 0){
+					guess[x][y] = 8;
+				}
+				else{
+					guess[x][y] = -1;
+				}
 			}
 		}
 		draw_board();
 		for(var i = 0; i < 10; ++i){
 			for(var j = 0; j < 10; ++j){
+				if(work[i][j] === -1){
+					if(guess[i][j] === 0){
+						ctx.fillText("~",50*(i+1) - 40,50*(j+1) - 20);
+					}
+					else if(guess[i][j] === 8){
+						ctx.beginPath();
+						ctx.arc(i*50 + 20,j*50 + 20,5,0,2*Math.PI,false);
+						ctx.fill();
+					}
+				}
+				else{
+					guess[i][j] = -1;
+				}
+				if(work[i][j] > 0){
+					decode_work(i,j);
+				}
 				decode_display(work[i][j],i,j);
 			}
 		}
@@ -781,7 +869,7 @@ function update_display(x,y){//Update the view of the board
 
 canvas.addEventListener('mousemove', function(evt1){ //When moved
 var mousePos = getMousePos(canvas, evt1);
-if(mouse_down && !mouse_up){
+if(mouse_down && !mouse_up && !guessing){
 	dragging = true;
 	update_display(mousePos.x,mousePos.y);
 }
@@ -803,7 +891,7 @@ mouse_down = true;
 mouse_up = false;
 });
 
-function mode_change(mode){
+function mode_change(mode){ //Compartmentalizes different modes
 	switch(mode){
 		case 'Random': //Reloads the page since the program initially runs a random problem
 			location.reload();
@@ -858,7 +946,12 @@ function mode_change(mode){
 		case 'Guess': //Allows user guessing mode
 		if(!solution_shown){
 			color_change('button3');
-			guessing = true;
+			if(guessing){
+				guessing = false;
+			}
+			else{
+				guessing = true;
+			}
 		}
 		break;
 	}
