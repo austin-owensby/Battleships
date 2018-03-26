@@ -772,7 +772,7 @@ if(x > -1 && y > -1){
 			work[x][y] = -1;
 		}
 	}
-	else if (x > 9 && y < 10){//Update row totals
+	else if (x === 10 && y < 10){//Update row totals
 		if(row_tot[y] < 8){
 			++row_tot[y];
 		}
@@ -780,7 +780,7 @@ if(x > -1 && y > -1){
 			row_tot[y] = 0;
 		}
 	}
-	else if (y > 9 && x < 10){//Update col totals
+	else if (y === 10 && x < 10){//Update col totals
 		if(col_tot[x] < 8){
 			++col_tot[x];
 		}
@@ -993,16 +993,13 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Solution': //Shows the solution and mistakes
-		if(!solution_shown){
+		if(!solution_shown && !entering){
 			display_answer();
 			solution_shown = true;
 		}
 		if(guessing){
 			guessing = false;
 			color_change('button3');
-		}
-		if(entering){
-			entering = false;
 		}
 		break;
 		
@@ -1052,13 +1049,10 @@ function mode_change(mode){ //Compartmentalizes different modes
 			guessing = false;
 			color_change('button3');
 		}
-		if(entering){
-			entering = false;
-		}
 		break;
 		
 		case 'Guess': //Allows user guessing mode
-		if(!solution_shown){
+		if(!solution_shown && !entering){
 			color_change('button3');
 			if(guessing){
 				guessing = false;
@@ -1066,9 +1060,6 @@ function mode_change(mode){ //Compartmentalizes different modes
 			else{
 				guessing = true;
 			}
-		}
-		if(entering){
-			entering = false;
 		}
 		break;
 	}
