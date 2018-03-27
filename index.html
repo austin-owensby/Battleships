@@ -105,7 +105,9 @@
 
 <script>
 /*To do
+Restart Mode
 Add how to page
+Add notification of correct puzzle
 Add difficulty
 Ask for beta-testers basically
 Phone compatibility?
@@ -1391,11 +1393,29 @@ function mode_change(mode){ //Compartmentalizes different modes
 		creating_problem = false;
 		solving = false;
 		entering = false;
+		//Display problem
+		ctx.clearRect(10,10,550,550);
+		ctx.rect(10,10,500.5,500.5);
+		ctx.fill();
+		for (var i = 0; i < 10; i++) { //Draw grid
+			for(var j = 0; j < 10; j++){
+				ctx.beginPath();
+				ctx.fillStyle="#FFFFFF";
+				ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
+			 	ctx.fill();
+				ctx.closePath();
+				ctx.fillStyle="#000000";
+			}
+		}
 		for(var i = 0; i < 10; ++i){
+			ctx.fillText(row_tot[i],525,50*i+50);
+			ctx.fillText(col_tot[i],50*i + 25,540);
 			for(var j = 0; j < 10; ++j){
-				if(problem[i][j] > 0){
-					decode_display(problem[i][j],i,j);
+				work[i][j] = problem[i][j];
+				if(work[i][j] > 0){
+					work[i][j] = 7;
 				}
+				decode_display(work[i][j],i,j);
 			}
 		}
 		if(guessing){
