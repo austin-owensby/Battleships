@@ -48,11 +48,6 @@
   position: absolute;
   background-color:lightgrey
 }
-#button0 {
-  position:absolute;
-  left:65%;
-  top:40%
-}
 #button1 {
   position:absolute;
   left:65%;
@@ -96,8 +91,7 @@
 <div class="canvas-container">
  <canvas id='canvas' width='950px' height='550px'></canvas>
  <div class = "btn-group">
-<button class = "button" id="button0" onclick="mode_change('Random');">Random Problem</button>
-<button class = "button" id="button1" onclick="mode_change('Easy');">Easy Problem</button>
+<button class = "button" id="button1" onclick="mode_change('Create'); difficulty = 1;">Level 1 Problem</button>
 <button class = "button" id="button2" onclick="mode_change('Solution');">Solution</button>
 <button class = "button" id='button3' onclick="mode_change('Guess');" style="background:rgb(76, 175, 80);">Guess Mode</button>
 <button class = "button" id="button4" onclick="mode_change('Solver');">Puzzle Solver</button>
@@ -111,10 +105,8 @@
 
 <script>
 /*To do
-Add problem solver stuff
-Add easy mode
-Check along the way for compatibility of modes
 Add how to page
+Add difficulty
 Ask for beta-testers basically
 Phone compatibility?
 */
@@ -157,7 +149,6 @@ var work = new Array(10);
 var guess = new Array(10);
 var row_tot = new Array(10);
 var col_tot = new Array(10);
-var hints = new Array(6);
 for(var i = 0; i < 10; ++i){
 	problem[i] = new Array(10);
 	answer[i] = new Array(10);
@@ -179,6 +170,7 @@ var guessing = false;
 var entering = false;
 var solving = false;
 var creating_problem = false;
+var difficulty = 1;
 
 //Draw gray side bar
 ctx.globalAlpha = 0.2;
@@ -320,7 +312,7 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 			}
 			if(work[i+1][j] === 5 || problem[i+1][j] === 5){
 				if(work[i+2][j] === 3 || problem[i+2][j] === 3){  //Cruiser detection
-					if(cruiser1_detected && !(cx === i && cy === j)){
+					if(cruiser1_detected && !(c1x === i && c1y === j)){
 						if(!cruiser2_detected){
 							cruiser2_detected = true;
 							c2x = i;
@@ -329,8 +321,8 @@ for(var i = 0; i < 10; ++i){ //Detect complete ships
 					}
 					else if(!cruiser1_detected){
 						cruiser1_detected = true;
-						cx = i;
-						cy = j;
+						c1x = i;
+						c1y = j;
 					}
 				}
 				if(work[i+2][j] === 5 || problem[i+2][j] === 5){ //Battleship detection
@@ -648,33 +640,6 @@ function create(){ //Create random legal board
 	}
 }
 
-function generate_hints(){ //Generates 3 random hints of ships (Potentially edit how this is done)
-var repeat = true;
-	while(repeat){
-		hints[0] = Math.floor(Math.random()*10);
-		hints[1] = Math.floor(Math.random()*10);
-		if(answer[hints[0]][hints[1]] > 0){
-			repeat = false;
-		}
-	}
-	repeat = true;
-	while(repeat){
-		hints[2] = Math.floor(Math.random()*10);
-		hints[3] = Math.floor(Math.random()*10);
-		if(answer[hints[2]][hints[3]] > 0 && !((hints[0] === hints[2]) && (hints[1] === hints[3])) ){
-			repeat = false;
-		}
-	}
-	repeat = true;
-	while(repeat){
-		hints[4] = Math.floor(Math.random()*10);
-		hints[5] = Math.floor(Math.random()*10);
-		if(answer[hints[4]][hints[5]] > 0 && !((hints[0] === hints[4]) && (hints[1] === hints[5])) && !((hints[4] === hints[2]) && (hints[5] === hints[3])) ){
-			repeat = false;
-		}
-	}
-}
-
 function decode_display(data,row,col){ //Displays the board based on the ship array
 switch(data){
 		case 0: //water
@@ -724,29 +689,6 @@ switch(data){
 		break;
 	}
 }
-
-function display_problem(){//Displays the problem
-	draw_board();
-	for (var i = 0; i < 10; i++){
-		for(var j = 0; j < 10; j++){
-			if( (i === hints[0])&&(j === hints[1]) || (i === hints[2])&&(j === hints[3]) || (i === hints[4])&&(j === hints[5]) ){
-				problem[i][j] = answer[i][j];
-				decode_display(problem[i][j],i,j);
-				work[i][j] = 7;
-			}
-			else{
-				work[i][j] = -1;
-				problem[i][j] = -1;
-			}
-			guess[i][j] = -1;
-		}
-	}
-}
-
-//Random Problem(Initial run of program)
-create();
-generate_hints();
-display_problem();
 
 function display_answer(){ //display the answer of the board
 draw_board();
@@ -944,6 +886,13 @@ function update_display(x,y){//Update the view of the board
 				if(work[i][j] > 0){
 					decode_work(i,j);
 				}
+			}
+		}
+		for(var i = 0; i < 10; ++i){
+			for(var j = 0; j < 10; ++j){
+				if(work[i][j] > 0){
+					decode_work(i,j);
+				}
 				decode_display(work[i][j],i,j);
 			}
 		}
@@ -977,12 +926,12 @@ mouse_down = true;
 mouse_up = false;
 });
 
-function problem_solver(){
+function problem_solver(difficulty){
 	var current_row_tot = new Array(10);
 	var current_col_tot = new Array(10);
 	var empty_row_tot = new Array(10);
 	var empty_col_tot = new Array(10);
-	var iterations = 5;
+	var iterations = 10;
 	for(var a = 0; a < iterations; ++a){
 	for(var i = 0; i < 10; ++i){
 		current_row_tot[i] = 0;
@@ -1248,25 +1197,17 @@ function problem_solver(){
 					}
 				}
 			}
+			//*******end of level 1 difficulty*************//
+			if(difficulty > 1){//add harder logic here by puzzle
+			
 			}
-		}
-	}
-
-	if(creating_problem){//Puzzle creation
-		for(var i = 0; i < 10; ++i){
-			for(var j = 0; j < 10; ++j){
-				if(work[i][j] !== answer[i][j]){//Board doesn't match, redo puzzle (Potentially edit how this is done)
-					create();
-					generate_hints();
-					display_problem();
-					problem_solver();
+			if(work[i][j] === 8){
+					decode_work(i,j);
 				}
 			}
 		}
 	}
-	
-	else{
-	//If not creating problem
+	if(!creating_problem){
 		ctx.clearRect(10,10,550,550);
 		ctx.rect(10,10,500.5,500.5);
 		ctx.fill();
@@ -1275,7 +1216,7 @@ function problem_solver(){
 				ctx.beginPath();
 				ctx.fillStyle="#FFFFFF";
 				ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
-				ctx.fill();
+			 	ctx.fill();
 				ctx.closePath();
 				ctx.fillStyle="#000000";
 			}
@@ -1284,23 +1225,108 @@ function problem_solver(){
 			ctx.fillText(row_tot[i],525,50*i+50);
 			ctx.fillText(col_tot[i],50*i + 25,540);
 			for(var j = 0; j < 10; ++j){
-				if(work[i][j] === 8){
-					decode_work(i,j);
-				}
 				decode_display(work[i][j],i,j);
 			}
 		}
 	}
 }
 
+var coordinates = new Array(100); //Create array with numbers 00-99
+var x_coor = new Array(100);
+var y_coor = new Array(100);
+for(var i = 0; i < 100; ++i){
+	coordinates[i] = i;
+}
+
+function problem_creater(difficulty){ //Creates solvable problems
+	for(var i = 0; i < 10; ++i){ //Clear current answer
+		row_tot[i] = 0;
+		col_tot[i] = 0;
+		for(var j = 0; j < 10; ++j){
+			answer[i][j] = 0;
+			problem[i][j] = -1;
+		}
+	}
+	create(); //Create new board
+	for(var i = 0; i < 10; ++i){ //Initialize work board to answer board
+		for(var j = 0; j < 10; ++j){
+			work[i][j] = answer[i][j];
+			problem[i][j] = answer[i][j];
+			if(answer[i][j] > 0){ //Calculate row and column totals
+					row_tot[j] = ++row_tot[j];
+				}
+			if(answer[j][i] > 0){
+				col_tot[j] = ++col_tot[j];
+			}
+		}
+	}
+	//Randomly sort coordinates
+	for (var i = coordinates.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = coordinates[i];
+        coordinates[i] = coordinates[j];
+        coordinates[j] = temp;
+    }
+	for(var i = 0; i < 100; ++i){
+		x_coor[i] = Math.floor(coordinates[i]/10);
+		y_coor[i] = coordinates[i] - x_coor[i]*10;
+	}
+	
+	for(var c = 0; c < 100; ++c){ //Removes each coordinate and checks if solvable
+	for (var i = 0; i < 10; i++) { //Draw grid
+		for(var j = 0; j < 10; j++){
+				work[i][j] = problem[i][j];
+		}
+	}
+	work[x_coor[c]][y_coor[c]] = -1;
+	problem_solver();
+	var match = true;
+		for (var i = 0; i < 10; i++) {
+			for(var j = 0; j < 10; j++){
+				if(work[i][j] !== answer[i][j]){ //If problem isn't solvable, replace removed piece
+					match = false;
+				}
+			}
+		}
+		if(match){
+			problem[x_coor[c]][y_coor[c]] = -1;
+		}
+	}
+	
+		//Display problem
+		ctx.clearRect(10,10,550,550);
+		ctx.rect(10,10,500.5,500.5);
+		ctx.fill();
+		for (var i = 0; i < 10; i++) { //Draw grid
+			for(var j = 0; j < 10; j++){
+				ctx.beginPath();
+				ctx.fillStyle="#FFFFFF";
+				ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
+			 	ctx.fill();
+				ctx.closePath();
+				ctx.fillStyle="#000000";
+			}
+		}
+		for(var i = 0; i < 10; ++i){
+			ctx.fillText(row_tot[i],525,50*i+50);
+			ctx.fillText(col_tot[i],50*i + 25,540);
+			for(var j = 0; j < 10; ++j){
+				work[i][j] = problem[i][j];
+				if(work[i][j] > 0){
+					work[i][j] = 7;
+				}
+				decode_display(work[i][j],i,j);
+			}
+		}
+}
+
+draw_board(); //Start display with a level 1 problem
+problem_creater(difficulty);
+
 function mode_change(mode){ //Compartmentalizes different modes
 	switch(mode){
-		case 'Random': //Reloads the page since the program initially runs a random problem
-			location.reload();
-		break;
-		
-		case 'Easy': //Generates an easy to solve problem
-		/*creating_problem = true;
+		case 'Create': //Generates an easy to solve problem
+		creating_problem = true;
 		solution_shown = false;
 		entering = false;
 		solving = false;
@@ -1308,8 +1334,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 			guessing = false;
 			color_change('button3');
 		}
-		problem_solver();
-		*/
+		problem_creater(difficulty);
 		break;
 		
 		case 'Solution': //Shows the solution and mistakes
@@ -1334,7 +1359,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 			entering = false;
 			solving = true;
 			creating_problem = false;
-			problem_solver();
+			problem_solver(6);
 		}
 		break;
 		
@@ -1358,9 +1383,6 @@ function mode_change(mode){ //Compartmentalizes different modes
 				guess[i][j] = -1;
 			}
 		}
-		for(var i = 0; i < 7; ++i){
-			hints[i] = -1;
-		}
 		draw_board();
 		break;
 		
@@ -1369,7 +1391,13 @@ function mode_change(mode){ //Compartmentalizes different modes
 		creating_problem = false;
 		solving = false;
 		entering = false;
-		display_problem();
+		for(var i = 0; i < 10; ++i){
+			for(var j = 0; j < 10; ++j){
+				if(problem[i][j] > 0){
+					decode_display(problem[i][j],i,j);
+				}
+			}
+		}
 		if(guessing){
 			guessing = false;
 			color_change('button3');
