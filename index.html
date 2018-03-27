@@ -692,6 +692,7 @@ switch(data){
 
 function display_answer(){ //display the answer of the board
 draw_board();
+var perfect = true;
 	for (var i = 0; i < 10; i++){
 		for(var j = 0; j < 10; j++){
 		decode_display(answer[i][j],i,j);
@@ -701,9 +702,13 @@ draw_board();
 			ctx.fillRect(50*i + 11,50*j + 11,48.5,48.5);
 			ctx.globalAlpha = 1;
 			ctx.fillStyle="#000000";
+			perfect = false;
 		}
 		}
 	}
+if(perfect){
+	alert("Correct!");
+}
 }
 
 function enter_problem(x,y){ //User entered board
