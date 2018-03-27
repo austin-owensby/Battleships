@@ -178,6 +178,7 @@ var solution_shown = false;
 var guessing = false;
 var entering = false;
 var solving = false;
+var creating_problem = false;
 
 //Draw gray side bar
 ctx.globalAlpha = 0.2;
@@ -647,7 +648,7 @@ function create(){ //Create random legal board
 	}
 }
 
-function generate_hints(){ //Generates 3 random hints of ships
+function generate_hints(){ //Generates 3 random hints of ships (Potentially edit how this is done)
 var repeat = true;
 	while(repeat){
 		hints[0] = Math.floor(Math.random()*10);
@@ -981,11 +982,18 @@ function problem_solver(){
 	var current_col_tot = new Array(10);
 	var empty_row_tot = new Array(10);
 	var empty_col_tot = new Array(10);
+	var iterations = 5;
+	for(var a = 0; a < iterations; ++a){
 	for(var i = 0; i < 10; ++i){
 		current_row_tot[i] = 0;
 		current_col_tot[i] = 0;
 		empty_row_tot[i] = 0;
 		empty_col_tot[i] = 0;
+		for(var j = 0; j < 10; ++j){
+			if(work[i][j] === 7){
+				work[i][j] = problem[i][j];
+			}
+		}
 	}
 	for(var i = 0; i < 10; ++i){
 		for(var j = 0; j < 10; ++j){
@@ -1007,7 +1015,6 @@ function problem_solver(){
 		}
 	}
 	for(var i = 0; i < 10; ++i){
-		for(var j = 0; j < 10; ++j){
 			if(current_row_tot[i] === row_tot[i]){ //fill row with water if the current ship parts = row number
 				for(var j = 0; j < 10; ++j){
 					if(work[j][i] === -1){
@@ -1036,26 +1043,252 @@ function problem_solver(){
 					}
 				}
 			}
+			for(var j = 0; j < 10; ++j){
+			if(work[i][j] === 6){ //surround submarines with water
+				if(i > 0){
+					work[i-1][j] = 0;
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+					work[i][j-1] = 0;
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+					work[i+1][j] = 0;
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+					work[i][j+1] = 0;
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 1){ //surround left end with water
+				if(i > 0){
+					work[i-1][j] = 0;
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+					work[i][j-1] = 0;
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+				if(work[i+1][j] === -1){
+					work[i+1][j] = 8;
+					}
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+					work[i][j+1] = 0;
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 2){ //surround down end with water
+				if(i > 0){
+					work[i-1][j] = 0;
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+				if(work[i][j-1] === -1){
+					work[i][j-1] = 8;
+					}
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+					work[i+1][j] = 0;
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+					work[i][j+1] = 0;
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 3){ //surround right end with water
+				if(i > 0){
+				if(work[i-1][j] === -1){
+					work[i-1][j] = 8;
+					}
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+					work[i][j-1] = 0;
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+					work[i+1][j] = 0;
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+					work[i][j+1] = 0;
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 4){ //surround up end with water
+				if(i > 0){
+					work[i-1][j] = 0;
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+					work[i][j-1] = 0;
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+					work[i+1][j] = 0;
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+				if(work[i][j+1] === -1){
+					work[i][j+1] = 8;
+					}
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 5 || work[i][j] === 8){ //surround center with water
+				if(i > 0){
+					if(j > 0){
+						work[i-1][j-1] = 0;
+					}
+				}
+				if(j > 0){
+					if(i < 9){
+						work[i+1][j-1] = 0;
+					}
+				}
+				if(i < 9){
+					if(j < 9){
+						work[i+1][j+1] = 0;
+					}
+				}
+				if(j < 9){
+					if(i > 0){
+						work[i-1][j+1] = 0;
+					}
+				}
+			}
+			if(work[i][j] === 5){ //add knowable ships around centers
+				if((i > 0)&&(j > 0)&&(i < 9)&&(j < 9)){
+					if(work[i+1][j] === 0 || work[i-1][j] === 0){
+						if(work[i][j-1] === -1){
+							work[i][j-1] = 8;
+						}
+						if(work[i][j+1] === -1){
+							work[i][j+1] = 8;
+						}
+					}
+					if(work[i][j+1] === 0 || work[i][j-1] === 0){
+						if(work[i-1][j] === -1){
+							work[i-1][j] = 8;
+						}
+						if(work[i+1][j] === -1){
+							work[i+1][j] = 8;
+						}
+					}
+				}
+				if(i === 0 || i === 9){
+					if(j < 9){
+						if(work[i][j+1] === -1){
+							work[i][j+1] = 8;
+						}
+					}
+					if(j > 0){
+						if(work[i][j-1] === -1){
+							work[i][j-1] = 8;
+						}
+					}
+				}
+				if(j === 0 || j === 9){
+					if(i < 9){
+						if(work[i+1][j] === -1){
+							work[i+1][j] = 8;
+						}
+					}
+					if(i > 0){
+						if(work[i-1][j] === -1){
+							work[i-1][j] = 8;
+						}
+					}
+				}
+			}
+			}
 		}
 	}
-	ctx.clearRect(10,10,550,550);
-	ctx.rect(10,10,500.5,500.5);
-	ctx.fill();
-	for (var i = 0; i < 10; i++) { //Draw grid
-		for(var j = 0; j < 10; j++){
-			ctx.beginPath();
-			ctx.fillStyle="#FFFFFF";
-			ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
-			ctx.fill();
-			ctx.closePath();
-			ctx.fillStyle="#000000";
+
+	if(creating_problem){//Puzzle creation
+		for(var i = 0; i < 10; ++i){
+			for(var j = 0; j < 10; ++j){
+				if(work[i][j] !== answer[i][j]){//Board doesn't match, redo puzzle (Potentially edit how this is done)
+					create();
+					generate_hints();
+					display_problem();
+					problem_solver();
+				}
+			}
 		}
 	}
-	for(var i = 0; i < 10; ++i){
-		ctx.fillText(row_tot[i],525,50*i+50);
-		ctx.fillText(col_tot[i],50*i + 25,540);
-		for(var j = 0; j < 10; ++j){
-			decode_display(work[i][j],i,j);
+	
+	else{
+	//If not creating problem
+		ctx.clearRect(10,10,550,550);
+		ctx.rect(10,10,500.5,500.5);
+		ctx.fill();
+		for (var i = 0; i < 10; i++) { //Draw grid
+			for(var j = 0; j < 10; j++){
+				ctx.beginPath();
+				ctx.fillStyle="#FFFFFF";
+				ctx.rect(50*i + 11,50*j + 11,48.5,48.5);
+				ctx.fill();
+				ctx.closePath();
+				ctx.fillStyle="#000000";
+			}
+		}
+		for(var i = 0; i < 10; ++i){
+			ctx.fillText(row_tot[i],525,50*i+50);
+			ctx.fillText(col_tot[i],50*i + 25,540);
+			for(var j = 0; j < 10; ++j){
+				if(work[i][j] === 8){
+					decode_work(i,j);
+				}
+				decode_display(work[i][j],i,j);
+			}
 		}
 	}
 }
@@ -1067,52 +1300,53 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Easy': //Generates an easy to solve problem
+		/*creating_problem = true;
 		solution_shown = false;
+		entering = false;
+		solving = false;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
 		}
-		if(entering){
-			entering = false;
-		}
+		problem_solver();
+		*/
 		break;
 		
 		case 'Solution': //Shows the solution and mistakes
 		if(!solution_shown && !entering){
-		solving = false;
+			if(guessing){
+				guessing = false;
+				color_change('button3');
+			}
+			creating_problem = false;
+			solving = false;
 			display_answer();
 			solution_shown = true;
-		}
-		if(guessing){
-			guessing = false;
-			color_change('button3');
 		}
 		break;
 		
 		case 'Solver': //Solves the problem as far as possible using the programmed logic
-		solving = true;
-		if(guessing){
-			guessing = false;
-			color_change('button3');
-		}
-		if(entering){
-			entering = false;
-		}
 		if(!solution_shown){
+			if(guessing){
+				guessing = false;
+				color_change('button3');
+			}
+			entering = false;
+			solving = true;
+			creating_problem = false;
 			problem_solver();
 		}
 		break;
 		
 		case 'Enter': //Allows user to enter their own problems
 		solution_shown = false;
+		creating_problem = false;
 		solving = false;
 		if(guessing){
 			guessing = false;
 			color_change('button3');
 		}
-		if(!entering){
-			entering = true;
-		}
+		entering = true;
 		ctx.clearRect(10,10,550,550);
 		for(var i = 0;i < 10; ++i){//clear other boards
 		row_tot[i] = 0;
@@ -1132,7 +1366,9 @@ function mode_change(mode){ //Compartmentalizes different modes
 		
 		case 'Restart': //Restarts current problem
 		solution_shown = false;
+		creating_problem = false;
 		solving = false;
+		entering = false;
 		display_problem();
 		if(guessing){
 			guessing = false;
