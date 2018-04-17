@@ -105,6 +105,9 @@
 
 <script>
 /*To do
+When Enter -> Puzzle Solver, save initial pieces correctly
+Clicking on water from problem
+
 Add notification of correct puzzle
 Add difficulty
 Ask for beta-testers basically
@@ -171,6 +174,7 @@ var entering = false;
 var solving = false;
 var creating_problem = false;
 var difficulty = 1;
+var entry_solved = false;
 
 //Draw gray side bar
 ctx.globalAlpha = 0.2;
@@ -937,6 +941,8 @@ function problem_solver(difficulty){
 	var empty_row_tot = new Array(10);
 	var empty_col_tot = new Array(10);
 	var iterations = 10;
+	var row_length = 0;
+	var col_length = 0;
 	for(var a = 0; a < iterations; ++a){
 	for(var i = 0; i < 10; ++i){
 		current_row_tot[i] = 0;
@@ -1160,7 +1166,7 @@ function problem_solver(difficulty){
 			}
 			if(work[i][j] === 5){ //add knowable ships around centers
 				if((i > 0)&&(j > 0)&&(i < 9)&&(j < 9)){
-					if(work[i+1][j] === 0 || work[i-1][j] === 0){
+					if(work[i+1][j] === 0 || work[i-1][j] === 0 || row_tot[j] === 2){
 						if(work[i][j-1] === -1){
 							work[i][j-1] = 8;
 						}
@@ -1168,7 +1174,7 @@ function problem_solver(difficulty){
 							work[i][j+1] = 8;
 						}
 					}
-					if(work[i][j+1] === 0 || work[i][j-1] === 0){
+					if(work[i][j+1] === 0 || work[i][j-1] === 0 || col_tot[i] === 2){
 						if(work[i-1][j] === -1){
 							work[i-1][j] = 8;
 						}
@@ -1203,13 +1209,41 @@ function problem_solver(difficulty){
 				}
 			}
 			//*******end of level 1 difficulty*************//
-			if(difficulty > 1){//add harder logic here by puzzle
-			
+			if(difficulty > 1){
+				if(!battleship_detected){ //check for battleship placements
+				var possibilities = 0;
+				var place_x;
+				var place_y;
+					if(work[i][j] && col_tot[j] >= 4){
+						col_length++;
+						if(col_length >= 4){
+							//console.log("Battleship possible from (" + (j-3) + "," + i + ") to (" + j + "," + i + ")");
+							++possibilities;
+							place_x = (j-3);
+							place_y = i;
+						}
+					}
+					else col_length = 0;
+					if(work[j][i] && row_tot[i] >= 4){
+						row_length++;
+						if(row_length >= 4){
+							//console.log("Battleship possible from (" + i + "," + (j-3) + ") to (" + i + "," + j + ")");
+							++possibilities;
+							place_x = i;
+							place_y = (j-3);
+						}
+					}
+					else row_length = 0;
+				}
 			}
 			if(work[i][j] === 8){
 					decode_work(i,j);
 				}
 			}
+		}
+		if(possibilities === 1){//place battleship
+			//console.log("Battleship only possible at (" + place_x + "," + place_y + ")");
+			battleship_detected = true;
 		}
 	}
 	if(!creating_problem){
@@ -1284,7 +1318,7 @@ function problem_creater(difficulty){ //Creates solvable problems
 		}
 	}
 	work[x_coor[c]][y_coor[c]] = -1;
-	problem_solver();
+	problem_solver(difficulty);
 	var match = true;
 		for (var i = 0; i < 10; i++) {
 			for(var j = 0; j < 10; j++){
@@ -1317,7 +1351,7 @@ function problem_creater(difficulty){ //Creates solvable problems
 			ctx.fillText(col_tot[i],50*i + 25,540);
 			for(var j = 0; j < 10; ++j){
 				work[i][j] = problem[i][j];
-				if(work[i][j] > 0){
+				if(work[i][j] > -1){
 					work[i][j] = 7;
 				}
 				decode_display(work[i][j],i,j);
@@ -1331,6 +1365,7 @@ problem_creater(difficulty);
 function mode_change(mode){ //Compartmentalizes different modes
 	switch(mode){
 		case 'Create': //Generates an easy to solve problem
+		entry_solved = false;
 		creating_problem = true;
 		solution_shown = false;
 		entering = false;
@@ -1343,7 +1378,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Solution': //Shows the solution and mistakes
-		if(!solution_shown && !entering){
+		if(!solution_shown && !entering && !entry_solved){
 			if(guessing){
 				guessing = false;
 				color_change('button3');
@@ -1361,6 +1396,9 @@ function mode_change(mode){ //Compartmentalizes different modes
 				guessing = false;
 				color_change('button3');
 			}
+			if(entering){//save entered board in case of reset
+				entry_solved = true;
+			}
 			entering = false;
 			solving = true;
 			creating_problem = false;
@@ -1369,6 +1407,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Enter': //Allows user to enter their own problems
+		entry_solved = false;
 		solution_shown = false;
 		creating_problem = false;
 		solving = false;
@@ -1392,6 +1431,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		break;
 		
 		case 'Restart': //Restarts current problem
+		if(!entry_solved){
 		solution_shown = false;
 		creating_problem = false;
 		solving = false;
@@ -1415,7 +1455,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 			ctx.fillText(col_tot[i],50*i + 25,540);
 			for(var j = 0; j < 10; ++j){
 				work[i][j] = problem[i][j];
-				if(work[i][j] > 0){
+				if(work[i][j] > -1){
 					work[i][j] = 7;
 				}
 				decode_display(work[i][j],i,j);
@@ -1424,6 +1464,7 @@ function mode_change(mode){ //Compartmentalizes different modes
 		if(guessing){
 			guessing = false;
 			color_change('button3');
+		}
 		}
 		break;
 		
