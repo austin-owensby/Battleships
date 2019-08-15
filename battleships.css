@@ -1,0 +1,42 @@
+canvas {
+  background-color:lightgrey;
+  width: auto;
+  height: auto;
+  max-height: 100%;
+  max-width: 100%;
+  border: 1px solid black;
+}
+
+html,body,.row{
+	height: 100%;
+	background-color: gray;
+}
+
+
+.col-xs-12{
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.btn-group-vertical{
+	height: 100%;
+	width: 100%;
+}
+
+.btn-group-container{
+	padding-top: 15px;
+}
+
+.btn-group-vertical button{
+	border: 1px solid blue;
+}
+
+button:not(:last-child) {
+    border-bottom: none; /* Prevent double borders */
+}
+
+@media screen and (max-width: 768px) {
+    .btn-group-container{
+		padding-top: 0px;
+	}
+}
