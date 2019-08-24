@@ -1,12 +1,5 @@
 <!DOCTYPE html>
-<html class="container-fluid">
-<!--
-Austin please fix your code :(
-Ship detection?
-State machine for logic
-More clear variable names
-Helper functions please?
--->
+<html>
 	<head>
 		<title>Battleships</title>
 		<link rel="stylesheet" href="battleships.css">
@@ -24,26 +17,63 @@ Helper functions please?
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	</head>
 	
-	<body>
+	<body class="container-fluid">
 
 		<div class="row">
 			<div class="col-xs-12 col-md-7 d-flex align-items-center justify-content-center" >
 				<canvas width='550px' height='550px'></canvas>
+				<div id="loader-container" class="d-flex align-items-center justify-content-center">
+					<div id="loader"></div>
+				</div>
 			</div>
 			<div class="col-xs-12 col-md-5 d-flex align-items-center justify-content-center btn-group-container" >
 				<div class="btn-group-vertical btn-group-lg">
-					<button type="button" class="btn btn-primary" id="btnLevel1">Level 1 Problem</button>
-					<button type="button" class="btn btn-primary" id="btnSolution">Solution</button>
-					<button type="button" class="btn btn-primary" id="btnGuess">Guess Mode</button>
-					<button type="button" class="btn btn-primary" id="btnSolve">Puzzle Solver</button>
-					<button type="button" class="btn btn-primary" id="btnEnter">Enter Problem</button>
-					<button type="button" class="btn btn-primary" id="btnRestart">Restart Problem</button>
+					<button type="button" class="btn btn-primary" id="btnNewProblem" data-toggle="modal" data-target="#NewProblemModal">New Problem</button>
 					<button type="button" class="btn btn-primary" id="btnHelp">Help</button>
 				</div>
 			</div>
 		</div>
+		
+		<!-- New Problem Modal -->
+		<div class="modal fade" id="NewProblemModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-centered primary" role="document">
+			<!--Content-->
+			<div class="modal-content">
+			  <!--Header-->
+			  <div class="modal-header">
+				<h4 class="modal-title">New Problem</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
 
+			  <!--Body-->
+			  <div class="modal-body">
+				<div class="md-form mb-5">
+				  <input id="size" type="text" class="form-control validate">
+				  <label data-error="wrong" data-success="right" for="form1">Size</label>
+				</div>
+
+				<div class="md-form">
+				  <select class="form-control" disabled=true>
+					<option value="Easy">Easy</option>
+				  </select>
+				  <label data-error="wrong" data-success="right" for="form2">Difficulty</label>				  
+				</div>
+			  </div>
+
+			  <!--Footer-->
+			  <div class="modal-footer justify-content-center">
+				<button id="NewProblemSubmitButton" type="button" class="btn btn-primary btn-lg" style="border:1px solid blue">Create</button>
+			  </div>
+			</div>
+			<!--/.Content-->
+		  </div>
+		</div>
+		
 		<script src="battleships.js"></script>
+		
+		
 
 	</body>
 

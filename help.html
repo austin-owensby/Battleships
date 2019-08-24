@@ -1,71 +1,64 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Help</title>
-<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-<meta name="msapplication-TileColor" content="#2d89ef">
-<meta name="theme-color" content="#ffffff">
-<style>
-*, *:before, *:after {
-    -webkit-user-select: none; /* Chrome/Safari */        
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE10+ */
-}
+	<head>
+		<title>Help</title>
+		<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+		<meta name="msapplication-TileColor" content="#2d89ef">
+		<meta name="theme-color" content="#ffffff">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	</head>
+<body class="container-fluid">
 
-.button {
-    background: rgb(76, 175, 80); /* Green */
-    border: 1px solid green;
-    color: white;
-    padding: 10px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    width: 200px;
-	height: 40px;
-    display: block;
-}
-
-.button:hover {
-   background: rgb(62, 142, 65);
-}
-
-</style>
-</head>
-<body>
-<h1 style = "text-align:center">How to Play Battleships</h1>
-
-<p>This version Battleships is a mix between the classic Battleships game and Sudoku.
-<br />The purpose of the game is to fill up the board with water and ships so that the location of every ship is known.
-</p>
-<div style="text-align: center">
-<p>
-<img src="Problem.png" style="width:200px;height:200px;">
-&emsp;&emsp;
-<img src="Answer.png" style="width:200px;height:200px;">
-</p>
-<p>Initial Problem &emsp; &emsp; &emsp; &emsp; &emsp; Completed Board</p>
-</div>
-<p>There are 4 different types of ships:</p>
-<p> <img src="Battleship.png" style="width:200px;height:50px;">&emsp;One Battleship </p>
-<p> <img src="Cruiser.png" style="width:150px;height:50px;">&emsp;Two Cruisers</p>
-<p> <img src="Destroyer.png" style="width:100px;height:50px;">&emsp;Three Destroyers</p>
-<p> <img src="Submarine.png" style="width:50px;height:50px;">&emsp;Four Submarines</p>
-<p> The numbers on the side of the rows and columns indicate the number of pieces of a ship in that specific row or column.
-	<br />One last rule is that no part of a ship may touch adjacently nor diagonally with another ship.
-	<br />Click on an empty square to turn it into water and click again to turn it into a ship piece
-</p>
-<a style="text-decoration:none;" href = "index.html"><button class = "button">Return</button></a>
-<p>
-I'm still trying to update the difficulty of puzzles and add new levels.
-<br />If you have any suggestions please text me/tell me in person what I can do!
-<br />Updated 4/16/2018
-</p>
+	<div class="row justify-content-center">		
+		<h1>How to Play Battleships</h1>
+	</div>
+	<div class="row justify-content-left-side" style="margin:0px">
+		<p>This version Battleships is a mix between the classic Battleships game and Sudoku.
+		<br />The purpose of the game is to fill up the board with water and ships so that the location of every ship is known.
+		</p>
+	</div>
+	<div class="row justify-content-around">
+		<figure class="figure">
+			<img src="Problem.png" style="width:200px;height:200px;">
+			<figcaption class="figure-caption text-center">Initial Problem</figcaption>
+		</figure>
+		<figure class="figure">
+			<img src="Answer.png" style="width:200px;height:200px;">
+			<figcaption class="figure-caption text-center">Completed Board</figcaption>
+		</figure>
+	</div>
+	<div class="row" style="margin:0px">
+		<p>Ships can be in multiple different sizes:</p>
+	</div>
+	<img src="Battleship.png" style="width:200px;height:50px;">
+	<img src="Cruiser.png" style="width:150px;height:50px;">
+	<img src="Destroyer.png" style="width:100px;height:50px;">
+	<img src="Submarine.png" style="width:50px;height:50px;">
+	<div class="row" style="margin:0px">
+		<p> 
+			<br />The numbers on the side of the rows and columns indicate the number of pieces of a ship in that specific row or column.
+			<br />One last rule is that no part of a ship may touch adjacently nor diagonally with another ship.
+			<br />Click on an empty square to turn it into water and click again to turn it into a ship piece
+		</p>
+	</div>
+	<div class="row" style="margin:0px">
+		<button type="button" class="btn btn-primary btn-block" onclick="location.href = 'index.html'">Return</button>
+	</div>
+	<div class="row" style="margin:0px">
+		<p>
+		<br />I'm currently doing a revamp of the whole website, be patient with me as it comes out :)
+		<br />If you have any suggestions please text me/tell me in person what I can do!
+		<br />Updated 8/22/2019
+		</p>
+	</div>
 
 </body>
 </html>
