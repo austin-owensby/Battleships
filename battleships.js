@@ -1,11 +1,10 @@
 /* 
-*  Row/Column text size decrease on larger boards (>20)
-*  Click on squares input
+*  Row/Column text size decrease on larger boards (>20) Different equations as well?
+*  Change display of unknown pieces
+*  Indicator on solved problem
 *  Guess Mode
-*  Enter Mode
-*  Solution/Solve Entered Problem Mode
+*  Enter Mode/Solve Entered Problem Mode
 *  Manually Enter New Problem with board size
-*  Restart problem
 */
 $(document).ready(function(){
 	let canvas = $('canvas')[0];
@@ -17,6 +16,8 @@ $(document).ready(function(){
 	NewProblem(initialBoardSize);
 });
 
+
+//Board creation/initialization functions
 function InitializeNewBoard(size){
 	boardAnswer = new Array(size);
 	rowTotal = new Array(size);
@@ -32,7 +33,7 @@ function InitializeNewBoard(size){
 	}
 }
 
-function DisplayBoard(board){
+async function DisplayBoard(board){
 	let canvas = $('canvas')[0];
 	CTX.clearRect(0,0,canvas.width,canvas.height);
 	let size = board.length;
@@ -40,19 +41,204 @@ function DisplayBoard(board){
 	CTX.fillStyle = "black";
 	CTX.rect(10,10,500.5,500.5);
 	CTX.fill();
+	
+	let differenceMode = (typeof boardDifference !== 'undefined') ? boardDifference != null : false;
+	
 	for (let i = 0; i < size; i++) { //Draw grid
 		for(let j = 0; j < size; j++){
 			CTX.beginPath();
-			CTX.fillStyle="white";
+			CTX.fillStyle = !differenceMode ? "white" : boardDifference[j][i] ? "lightcoral" : "white";
 			CTX.rect( gridSize*i + 11, gridSize*j + 11, gridSize-1.5, gridSize-1.5);
 			CTX.fill();
 			CTX.closePath();
 			CTX.fillStyle="black";
 		}
 	}
-		
+	
+	boardDifference = null;
+	
+	//Resolve unknown pieces
+	for(let i = 0; i < 2; i++){ //2 iterations to go back over unknowns
+		for(let row = 0; row < size; row++){
+			for(let column = 0; column < size; column++){
+				if(boardQuestion[row][column] == "empty" && board[row][column] != "water" && board[row][column] != "empty"){
+					if(row > 0){
+						if(board[row-1][column]=="unknown" || board[row-1][column]=="center" || board[row-1][column]=="upEnd"){
+							if(row + 1 < size){
+								if(board[row+1][column]=="unknown" || board[row+1][column]=="center" || board[row+1][column]=="downEnd"){
+									board[row][column] = "center";
+								}
+								else if(board[row+1][column]=="water"){
+									board[row][column] = "downEnd";
+								}
+							}
+							else{
+								board[row][column] = "downEnd";
+							}
+						}
+						else if(board[row-1][column]=="water"){
+							if(row + 1 < size){
+								if(board[row+1][column]=="unknown" || board[row+1][column]=="center" || board[row+1][column]=="downEnd"){
+									board[row][column] = "upEnd";
+								}
+							}
+						}
+					}
+					else{
+						if(row + 1 < size){
+							if(board[row+1][column]=="unknown" || board[row+1][column]=="center" || board[row+1][column]=="downEnd"){
+								board[row][column] = "upEnd";
+							}
+						}
+					}
+					if(column > 0){
+						if(board[row][column-1]=="unknown" || board[row][column-1]=="center" || board[row][column-1]=="leftEnd"){
+							if(column + 1 < size){
+								if(board[row][column+1]=="unknown" || board[row][column+1]=="center" || board[row][column+1]=="rightEnd"){
+									board[row][column] = "center";
+								}
+								else if(board[row][column+1]=="water"){
+									board[row][column] = "rightEnd";
+								}
+							}
+							else{
+								board[row][column] = "rightEnd";
+							}
+						}
+						else if(board[row][column-1]=="water"){
+							if(column + 1 < size){
+								if(board[row][column+1]=="unknown" || board[row][column+1]=="center" || board[row][column+1]=="rightEnd"){	
+									board[row][column] = "leftEnd";
+								}
+							}
+						}
+					}
+					else{
+						if(column + 1 < size){
+							if(board[row][column+1]=="unknown" || board[row][column+1]=="center" || board[row][column+1]=="rightEnd"){
+								board[row][column] = "leftEnd";
+							}
+						}
+					}
+					//Submarine check
+					if(row > 0){
+						if(board[row-1][column] == "water"){
+							if(row + 1 < size){
+								if(board[row+1][column] == "water"){
+									if(column > 0){
+										if(board[row][column-1] == "water"){
+											if(column + 1 < size){
+												if(board[row][column+1] == "water"){
+													board[row][column] = "submarine";
+												}
+											}
+											else{
+												board[row][column] = "submarine";
+											}
+										}
+									}
+									else{
+										if(column + 1 < size){
+											if(board[row][column+1] == "water"){
+												board[row][column] = "submarine";
+											}
+										}
+										else{
+											board[row][column] = "submarine";
+										}
+									}
+								}
+							}
+							else{
+								if(column > 0){
+									if(board[row][column-1] == "water"){
+										if(column + 1 < size){
+											if(board[row][column+1] == "water"){
+												board[row][column] = "submarine";
+											}
+										}
+										else{
+											board[row][column] = "submarine";
+										}
+									}
+								}
+								else{
+									if(column + 1 < size){
+										if(board[row][column+1] == "water"){
+											board[row][column] = "submarine";
+										}
+									}
+									else{
+										board[row][column] = "submarine";
+									}
+								}
+							}
+						}
+					}
+					else{
+						if(row + 1 < size){
+							if(board[row+1][column] == "water"){
+								if(column > 0){
+									if(board[row][column-1] == "water"){
+										if(column + 1 < size){
+											if(board[row][column+1] == "water"){
+												board[row][column] = "submarine";
+											}
+										}
+										else{
+											board[row][column] = "submarine";
+										}
+									}
+								}
+								else{
+									if(column + 1 < size){
+										if(board[row][column+1] == "water"){
+											board[row][column] = "submarine";
+										}
+									}
+									else{
+										board[row][column] = "submarine";
+									}
+								}
+							}
+						}
+						else{
+							if(column > 0){
+								if(board[row][column-1] == "water"){
+									if(column + 1 < size){
+										if(board[row][column+1] == "water"){
+											board[row][column] = "submarine";
+										}
+									}
+									else{
+										board[row][column] = "submarine";
+									}
+								}
+							}
+							else{
+								if(column + 1 < size){
+									if(board[row][column+1] == "water"){
+										board[row][column] = "submarine";
+									}
+								}
+								else{
+									board[row][column] = "submarine";
+								}
+							}
+						}
+					}
+				}
+			}
+		}	
+	}
+	
+	solved = true;
+	
 	for(let row = 0; row < size; row++){
 		for(let col = 0; col < size; col++){
+			if(board[col][row] != boardAnswer[col][row]){
+				solved = false;
+			}
 			switch(board[col][row]){
 				case "water":
 					CTX.font = "bold " + 30*gridSize/50 + "px Arial";
@@ -96,7 +282,7 @@ function DisplayBoard(board){
 				break;
 				case "unknown":
 					CTX.beginPath();
-					CTX.arc((row+1)*gridSize - 15,(col+1)*gridSize - 15,10,0,2*Math.PI,false);
+					CTX.arc((row+.5)*gridSize + 10,(col+.5)*gridSize + 10,10*gridSize/50,0,2*Math.PI,false);
 					CTX.fill();
 				break;
 			}
@@ -119,6 +305,12 @@ function DisplayBoard(board){
 			CTX.fillText(columnTotal[i],gridSize*i+gridSize/2+2,540);
 		}
 	}
+			
+	await sleep(10);		
+	if(solved && !differenceMode){
+		alert("Puzzle solved!");
+	}
+	
 }
 
 function CreateAnswerBoard(size){
@@ -363,17 +555,35 @@ function CreateQuestionBoard(boardAnswer){
 		
 		let removedSquare = boardQuestion[row][column];
 		boardQuestion[row][column] = "empty";
-		DisplayBoard(boardQuestion);
 		
 		if(!BoardSolver()){
 			//replace removed square
 			boardQuestion[row][column] = removedSquare;
 		}
-		DisplayBoard(boardQuestion);
+	}
+	
+	boardWork = new Array(size);
+	for(let i = 0; i < size; i++){
+		boardWork[i] = new Array(size);
+		for(let j = 0; j < size; j++){
+			boardWork[i][j] = boardQuestion[i][j];
+		}
 	}
 	
 }
 
+async function NewProblem(size){
+	InitializeNewBoard(size);
+	ToggleLoading();
+	await sleep(10);
+	CreateAnswerBoard(size);
+	CreateQuestionBoard(boardAnswer);
+	DisplayBoard(boardQuestion);
+	ToggleLoading();
+}
+
+
+//Main logic for creating a new problem/solving an entered problem
 function BoardSolver(){
 	let size = boardQuestion.length;
 	let boardSolution = new Array(size);
@@ -451,36 +661,59 @@ function BoardSolver(){
 	return true;
 }
 
-async function NewProblem(size){
-	InitializeNewBoard(size);
-	ToggleLoading();
-	await sleep(10);
-	CreateAnswerBoard(size);
-	CreateQuestionBoard(boardAnswer);
-	DisplayBoard(boardQuestion);
-	ToggleLoading();
-}
 
 //Button Events
 $("#btnHelp").click(function(){
 	location.href = 'help.html';
 });
 
+$("#btnReset").click(function(){
+	let size = boardQuestion.length;
+	for(let i = 0; i < size; i++){
+		for(let j = 0; j < size; j++){
+			boardWork[i][j] = boardQuestion[i][j];
+		}
+	}
+	
+	DisplayBoard(boardWork);
+});
+
+$("#btnSolution").click(function() {
+	let size = boardAnswer.length;
+	boardDifference = new Array(size);
+	for(let i = 0; i < size; i++){
+		boardDifference[i] = new Array(size);
+		for(let j = 0; j < size; j++){
+			if(boardWork[i][j] == boardAnswer[i][j]){
+				boardDifference[i][j] = false;
+			}
+			else{
+				boardDifference[i][j] = true;
+			}
+		}
+	}
+	DisplayBoard(boardAnswer);
+});
+
 $("#NewProblemSubmitButton").click(function(){
 	let size = $("#size")[0].value;
 	if(isNaN(size)){
-		$("#size")[0].value = "Please enter a number.";
+		$("#size")[0].value = "";
+		$("#size")[0].placeholder = "Please enter a number.";
 	}
 	else{
 		let Size = Number(size);
 		console.log(Size);
 		console.log(parseInt(Size,10));
 		console.log(Size === parseInt(Size,10));
-		if(Size < 0){
-			$("#size")[0].value = "Please enter a positive number.";
+		$("#size")[0].placeholder = "";
+		if(Size <= 0){
+			$("#size")[0].value = "";
+			$("#size")[0].placeholder = "Please enter a positive number.";
 		}
 		else if(!(Size === parseInt(Size,10))){
-			$("#size")[0].value = "Please enter a whole number.";
+			$("#size")[0].value = "";
+			$("#size")[0].placeholder = "Please enter a whole number.";
 		}
 		else{//Good problem
 			NewProblem(size);
@@ -489,6 +722,8 @@ $("#NewProblemSubmitButton").click(function(){
 	}
 });
 
+
+//Helper functions
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -503,46 +738,33 @@ function ToggleLoading(){
 	}
 }
 
-/*
-Logic flow:
+$("canvas").click( (e) =>
+{
+	let canoffset = $("canvas").offset();
+	let x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffset.left);
+	let y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffset.top) + 1;
 
-Initialize board:
-	Inputs: Size
-	Outputs: Answer board
-	Interactivity: Draws empty board of correct size
-	Disables all other buttons while generating, moves on to create problem state
-	
-	Draw empty grid to screen
-	Initialize empty problem and answer boards to empty
-	Create answer board function
-	
-Create Problem:
-	Inputs: Difficulty, Size
-	Outputs: Problem board, Current Board
-	Interactivity: Draws problem board
-	Disables all other buttons while generating
-	Moves to ready state, enables button interactivity
-	
-Help:
-	Can be clicked on in any state except Initialize and Create Problem to move to help.html page
-	Returns back to main page on button click
-	
-Guess:
-	Togglable state
-	Only Changes blank spaces or other guess clues
+	let size = boardQuestion.length;
 
-Solution:
-	If problem was not entered, show and check solution
-	else, try to solve the entered problem
+	x = Math.floor( (x-10)/(500/size) );
+	y = Math.floor( (y-10)/(500/size) );
 
-Enter Problem:
-	Problem, Answer, and Current Board reinitialized
-	Clicking changes current grid square or number
+	let column = x < 0 ? NaN : x >= size ? NaN : x;
+	let row = y < 0 ? NaN : y >= size ? NaN : y;
 
-Restart:
-	Sets Current Board to Problem board
-
-Ready:
-	Main state, no button for this one
+	if(!isNaN(row) && !isNaN(column)){
+		if(boardQuestion[row][column] == "empty"){ //Allowable click
+			if(boardWork[row][column] == "empty"){
+				boardWork[row][column] = "water";
+			}
+			else if(boardWork[row][column] == "water"){
+				boardWork[row][column] = "unknown";
+			}
+			else{
+				boardWork[row][column] = "empty";
+			}
+			DisplayBoard(boardWork);
+		}
+	}
 	
-*/
+});
