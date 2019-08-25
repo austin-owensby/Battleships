@@ -1,12 +1,9 @@
 /* 
 *  Row/Column text size decrease on larger boards (>20) Different equations as well?
-*  Change display of unknown pieces
-*  Indicator on solved problem
 *  Guess Mode
 *  Enter Mode/Solve Entered Problem Mode
-*  Manually Enter New Problem with board size
 */
-$(document).ready(function(){
+$(document).ready(function(){	
 	let canvas = $('canvas')[0];
 	CTX = canvas.getContext("2d");
 	
@@ -738,19 +735,27 @@ function ToggleLoading(){
 	}
 }
 
-$("canvas").click( (e) =>
-{
-	let canoffset = $("canvas").offset();
+$("canvas").click(function(){
+	let canvas = $("canvas");
+	let canoffset = canvas.offset();
+	let canWidth = canvas[0].offsetWidth;
+	let canHeight = canvas[0].offsetHeight;
 	let x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - Math.floor(canoffset.left);
 	let y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - Math.floor(canoffset.top) + 1;
-
+		
 	let size = boardQuestion.length;
 
-	x = Math.floor( (x-10)/(500/size) );
-	y = Math.floor( (y-10)/(500/size) );
+	console.log(x + "," + y);
+
+	let ratio = canWidth/552.0;
+
+	x = Math.floor( (x-10)/(500*ratio/size) );
+	y = Math.floor( (y-10)/(500*ratio/size) );
 
 	let column = x < 0 ? NaN : x >= size ? NaN : x;
 	let row = y < 0 ? NaN : y >= size ? NaN : y;
+
+	console.log("row: " + row + ", column: " + column);
 
 	if(!isNaN(row) && !isNaN(column)){
 		if(boardQuestion[row][column] == "empty"){ //Allowable click
@@ -767,4 +772,4 @@ $("canvas").click( (e) =>
 		}
 	}
 	
-});
+})
